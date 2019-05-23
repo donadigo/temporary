@@ -1,0 +1,9 @@
+Clone libmypaint
+Clone babl
+Clone GEGL
+Compile & install babl
+Compile & install GEGL
+
+cd /usr/lib
+objdump -TC libbabl-0.1.so | grep "babl_format_get_encoding"
+sudo cp libbabl-0.1.so x86_64-linux-gnu/

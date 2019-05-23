@@ -1,22 +1,24 @@
 
-
-public class CanvasView : ReactiveActor {
+public class CanvasView : Clutter.Actor {
     public Document doc { get; construct; }
+
+    private Cogl.Texture texture;
+    private RenderPipeline pipeline;
 
     public CanvasView (Document doc) {
         Object (doc: doc);
     }
 
     construct {
-        background_color = Clutter.Color.get_static (Clutter.StaticColor.WHITE);
+        background_color = Clutter.Color.get_static (Clutter.StaticColor.BLACK);
         reactive = true;
 
-        //  uint8[] data = doc.buffer.introspectable_get (doc.buffer.get_extent (), 1.0, null, 0);
-        //  print (data.length.to_string () + "\n");
+        doc.size_updated.connect (on_doc_size_updated);
+        on_doc_size_updated ();
 
-        //  uint8[] buff = {};
-        //  doc.buffer.get ("pixels", out buff);
-        foreach (var layer in doc.layer_stack.layers) {
+        pipeline = new RenderPipeline (this);
+
+        foreach (var layer in doc.layer_stack.get_unrolled ()) {
             add_layer (layer);
         }
 
@@ -26,23 +28,39 @@ public class CanvasView : ReactiveActor {
     }
 
     void add_layer (Layer layer) {
-        var actor = new LayerActor (doc, layer);
+        var actor = new LayerActor (doc, layer, pipeline);
         layer.repaint.connect (() => queue_redraw ());
         add_child (actor);
     }
 
-    //  public override bool button_press_event (Clutter.ButtonEvent event) {
-    //          print ("BUTTON".to_string () + "\n");
-    //      //  if (event.button == 2) {
-    //      //  }
+    void on_doc_size_updated () {
+        //  set_size (doc.width, doc.height);
+        set_size (1000, 1000);
+    }
 
-    //      return false;
-    //  }
-    //  public override void paint () {
-    //      base.paint ();
+    bool done = false;
+    public override void paint () {
+        //  if (!done) {
+        //  pipeline.begin_paint ();
+        //  base.paint ();
+        //  }
 
-    //      foreach (var layer in doc.layer_stack.layers) {
-    //          layer.paint (doc);
-    //      }
-    //  }
+        pipeline.begin_paint ();
+        //  base.paint ();
+        foreach (var child in get_children ()) {
+            child.paint ();
+        }
+
+        var texture = pipeline.get_current_texture ();
+        Cogl.set_source_texture (texture);
+        Cogl.rectangle (0, 0, texture.get_width (), texture.get_height ());
+        //  doc.material = new Cogl.Material ();
+        //  Cogl.push_framebuffer ((Cogl.Framebuffer)doc.fbo);
+        //  Cogl.clear (new Cogl.Color.from_4ub (0,0,0,0), Cogl.BufferBit.COLOR);
+        //  Cogl.pop_framebuffer ();
+
+        //  base.paint ();
+        //  Cogl.set_source_texture (doc.texture);
+        //  Cogl.rectangle (0, 0, doc.texture.get_width (), doc.texture.get_height ());
+    }
 }

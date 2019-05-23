@@ -10,12 +10,6 @@ public class WorkspaceView : Gtk.Grid {
 
         var embed = new GtkClutter.Embed ();
         stage = (Clutter.Stage)embed.get_stage ();
-        stage.accept_focus = true;
-        
-        stage.event.connect ((e) => {
-            cv.emit_event (e, false);
-            return false;
-        });
 
         stage.add_child (cv);
 

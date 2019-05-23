@@ -22,8 +22,8 @@ public class CApp : Gtk.Application {
     }
 
     public static int main (string[] args) {
+        GtkClutter.init (ref args);
         //  Gegl.init (ref args);
-        Clutter.init (ref args);
 
         //  foreach (var op in Gegl.list_operations ()) {
         //      print (op + "\n");

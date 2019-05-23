@@ -7,7 +7,12 @@ conf = configuration_data()
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 config_h_dir = include_directories('.')
 
-add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
+add_project_arguments([
+    '--vapidir=' + join_paths(meson.source_root(), 'vapi')], '--pkg', 'cogl-fixes',
+    language: 'vala'
+)
+
+add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()),  language:'c')
 
 posix_dep = meson.get_compiler('vala').find_library('posix')
 
@@ -19,25 +24,25 @@ executable(
     'src/WorkspaceView.vala',
     'src/CanvasView.vala',
     'src/HeaderMenuButton.vala',
-    'src/Layer.vala',
     'src/Document.vala',
     'src/Types.vala',
     'src/AsyncJob.vala',
     'src/EffectBackend.vala',
     'src/Colorspace.vala',
     'src/Image.vala',
-    'src/ImageLayer.vala',
     'src/LayerActor.vala',
-    'src/ReactiveActor.vala',
-    'src/LayerStack.vala',
+    'src/Layers/LayerStack.vala',
+    'src/Layers/LayerStackItem.vala',
+    'src/Layers/Layer.vala',
+    'src/Layers/ImageLayer.vala',
+    'src/RenderPipeline.vala',
     'src/FileReader.vala',
     'src/PngFileReader.vala',
     'src/NewDocumentDialog.vala',
     dependencies: [
         dependency('glib-2.0'),
-        dependency('granite'),
+        dependency('gee-0.8'),
         dependency('gtk+-3.0'),
-        dependency('gegl-0.3'),
         dependency('clutter-1.0'),
         dependency('clutter-gtk-1.0'),
 
