@@ -40,6 +40,7 @@ executable(
     'src/Layers/LayerStackItem.vala',
     'src/Layers/Layer.vala',
     'src/Layers/ImageLayer.vala',
+    'src/ImageGraph.vala',
     'src/RenderPipeline.vala',
     'src/FileReader.vala',
     'src/PngFileReader.vala',

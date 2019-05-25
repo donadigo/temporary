@@ -4,16 +4,18 @@
 public class RenderPipeline : Object {
     public unowned CanvasView canvas { get; construct; }
 
-    private Cogl.Offscreen a_fbo;
-    public Cogl.Texture a;
+    Cogl.Offscreen a_fbo;
+    Cogl.Texture a;
 
-    private Cogl.Offscreen b_fbo;
-    public Cogl.Texture b;
+    Cogl.Offscreen b_fbo;
+    Cogl.Texture b;
 
-    private static Cogl.Color transparent;
-
+    Cogl.Offscreen layer_fbo;
+    Cogl.Texture layer;
 
     bool render_to_b = true;
+
+    static Cogl.Color transparent;
 
     static construct {
         transparent = Cogl.Color.from_4ub (0, 0, 0, 0);
@@ -24,11 +26,14 @@ public class RenderPipeline : Object {
     }
 
     construct {
-        a = new Cogl.Texture.with_size ((uint)canvas.width, (uint)canvas.height, Cogl.TextureFlags.NONE, Cogl.PixelFormat.ANY);
-        a_fbo = new Cogl.Offscreen.to_texture (a);
+        create_fbo ((int)canvas.width, (int)canvas.height, out a, out a_fbo);
+        create_fbo ((int)canvas.width, (int)canvas.height, out b, out b_fbo);
+        create_fbo ((int)canvas.width, (int)canvas.height, out layer, out layer_fbo);
+    }
 
-        b = new Cogl.Texture.with_size ((uint)canvas.width, (uint)canvas.height, Cogl.TextureFlags.NONE, Cogl.PixelFormat.ANY);
-        b_fbo = new Cogl.Offscreen.to_texture (b);
+    static void create_fbo (int width, int height, out Cogl.Texture texture, out Cogl.Offscreen fbo) {
+        texture = new Cogl.Texture.with_size ((uint)width, (uint)height, Cogl.TextureFlags.NONE, Cogl.PixelFormat.ANY);
+        fbo = new Cogl.Offscreen.to_texture (texture);
     }
 
     public void get_size (out uint width, out uint height) {
@@ -40,6 +45,16 @@ public class RenderPipeline : Object {
         clear_fbo (a_fbo);
         clear_fbo (b_fbo);
         render_to_b = !render_to_b;
+    }
+
+    public void bind_layer () {
+        Cogl.flush ();
+        clear_fbo (layer_fbo);
+        Cogl.push_framebuffer ((Cogl.Framebuffer)layer_fbo);
+    }
+
+    public void end_layer () {
+        Cogl.pop_framebuffer ();
     }
 
     public void bind_current () {
@@ -63,9 +78,8 @@ public class RenderPipeline : Object {
         return render_to_b ? a : b;
     }
 
-    public unowned Cogl.Texture get_result () {
-        return render_to_b ? b : a;
-        //  return current_fbo == a_fbo ? a : b;
+    public unowned Cogl.Texture get_layer_texture () {
+        return layer;   
     }
 
     private static void clear_fbo (Cogl.Offscreen fbo) {

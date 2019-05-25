@@ -9,7 +9,7 @@ public class LayerActor : Clutter.Actor {
     float drag_x = 0;
     float drag_y = 0;
 
-    Rectangle<int> start_box;
+    Gdk.Rectangle start_box;
 
     public LayerActor (Document doc, Layer layer, RenderPipeline pipeline) {
         Object (doc: doc, layer: layer, pipeline: pipeline);
@@ -63,21 +63,29 @@ public class LayerActor : Clutter.Actor {
 
 
     public override void paint () {
-        pipeline.bind_current ();
+        pipeline.bind_layer ();
 
-        var p = get_stage ().get_perspective ();
-        
         uint twidth, theight;
         pipeline.get_size (out twidth, out theight);
 
-        var matrix = setup_viewport (twidth, theight, p.fovy, 1, p.z_near, p.z_far);
-        pipeline.draw_current ();
+        var pp = get_stage ().get_perspective ();
+        var matrix = setup_viewport (twidth, theight, pp.fovy, 1, pp.z_near, pp.z_far);
 
-        //  apply_transform (ref matrix);
-        //  Cogl.set_modelview_matrix (matrix);
+        var layer_matrix = Clutter.Matrix.alloc ().init_from_matrix ((Clutter.Matrix)matrix);
+        apply_transform (ref layer_matrix);
+        Cogl.set_modelview_matrix (layer_matrix);
 
-        layer.paint (doc, this, matrix);
+        layer.paint_content (doc, this);
 
+        pipeline.end_layer ();
+
+        pipeline.bind_current ();
+        /**
+         * We avoid setting up the viewport again. We just restore it's matrix + perspective.
+         */
+        Cogl.set_modelview_matrix (matrix);
+        set_perspective (twidth, theight, pp.fovy, 1, pp.z_near, pp.z_far);
+        layer.paint (doc, this);
         pipeline.end_current ();
     }
 
@@ -90,26 +98,21 @@ public class LayerActor : Clutter.Actor {
         opacity = (uint)(layer.opacity * 255);
     }
 
-    public static Clutter.Matrix setup_viewport (float width, float height, float fovy, float aspect, float z_near, float z_far) {
-        Cogl.set_viewport (0, 0, (int)width, (int)height);
-        Cogl.perspective (fovy, aspect, z_near, z_far);
-        
+    public static Cogl.Matrix setup_viewport (float width, float height, float fovy, float aspect, float z_near, float z_far) {
+        set_perspective (width, height, fovy, aspect, z_near, z_far);
         Cogl.Matrix projection_matrix;
         CoglFixes.get_projection_matrix (out projection_matrix);
         float z_camera = 0.5f * projection_matrix.xx;
 
-        var matrix = Clutter.Matrix.alloc ().init_identity ();
-
+        var matrix = Cogl.Matrix.identity ();
         matrix.translate (-0.5f, -0.5f, -z_camera);
         matrix.scale (1.0f / width, -1.0f / height, 1.0f /width);
         matrix.translate (0, -1.0f * height, 0);
-
-        Cogl.set_modelview_matrix (matrix);
         return matrix;
+    }
 
-
-        //  float z_camera;
-        //  Cogl.Matrix projection_matrix;
-        
+    public static void set_perspective (float width, float height, float fovy, float aspect, float z_near, float z_far) {
+        Cogl.set_viewport (0, 0, (int)width, (int)height);
+        Cogl.perspective (fovy, aspect, z_near, z_far);
     }
 }
