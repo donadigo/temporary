@@ -16,6 +16,11 @@ add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()),  l
 
 posix_dep = meson.get_compiler('vala').find_library('posix')
 
+gegl_fixes_files = files(
+    'gegl-fixes/gegl-fixes.c',
+    'gegl-fixes/gegl-fixes.h'
+)
+
 executable(
     meson.project_name(),
     'src/Application.vala',
@@ -39,13 +44,16 @@ executable(
     'src/FileReader.vala',
     'src/PngFileReader.vala',
     'src/NewDocumentDialog.vala',
+    gegl_fixes_files,
     dependencies: [
         dependency('glib-2.0'),
         dependency('gee-0.8'),
         dependency('gtk+-3.0'),
         dependency('clutter-1.0'),
         dependency('clutter-gtk-1.0'),
-
+        dependency('gegl-0.4'),
+        dependency('gegl-gtk3-0.1'),
+        meson.get_compiler('vala').find_library('gegl-fixes', dirs: join_paths(meson.current_source_dir(), 'gegl-fixes')),
         meson.get_compiler('c').find_library('m', required : false)
     ],
     install: true

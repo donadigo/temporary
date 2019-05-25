@@ -110,10 +110,11 @@ class Examples.Basic : GLib.Object {
 
         {
             var r = new Gegl.Rectangle (0, 0, 838, 517);
-            var c = new Gegl.Color ("#FFF");
-            var b = new Gegl.Buffer (r, "RGBA float");
+            var c = new Gegl.Color ("#FF00FF");
+            var b = new Gegl.Buffer (r, null);
+            //  var b = new Gegl.Buffer.introspectable_new ("RGBA float", 0, 0, 838, 517);
             //  var b = Gegl.Buffer.load ("/home/donadigo/sample.jpeg");
-            b.set_color (b.get_extent(), c);
+            //  b.set_color (r, c);
 
             //  void* data = new float[838 * 517 * 4];
             //  b.get (b.get_extent (), 1.0, "RGBA float", data, 838 * 4 * 4, 0);
@@ -129,24 +130,54 @@ class Examples.Basic : GLib.Object {
             //  b.save ("/home/donadigo/build/test.jpeg", r);
             //  return 0;
             
-            var node = new Gegl.Node ();
-            node.set_property("cache-policy", Gegl.CachePolicy.NEVER);
-            var src = node.create_child ("gegl:buffer-source");
-            src.set_property ("buffer", b);
-
+            var graph = new Gegl.Node ();
+            graph.set_property("cache-policy", Gegl.CachePolicy.NEVER);
+            //  var src = node.create_child ("gegl:buffer-source");
+            //  src.set_property ("buffer", b);
+            var rect = graph.create_child ("gegl:rectangle");
+            rect.set_property ("color", c);
+            rect.set_property ("width", 100);
+            rect.set_property ("height", 100);
             //  var over = node.create_child ("gegl:over");
             //  src.connect_to ("output", over, "aux");
 
-            //  var img = node.create_child ("gegl:load");
-            //  img.set_property ("path", "/home/donadigo/sample.jpeg");
+            var src = graph.create_child ("gegl:load");
+            src.set_property ("path", "/home/donadigo/testbg.png");
 
+
+            var over = graph.create_child ("gegl:over");
+            src.connect_to ("output", over, "input");
+            rect.connect_to ("output", over, "aux");
             //  img.connect_to ("output", over, "input");
 
-            var dst = node.create_child ("gegl:save");
-            dst.set_property ("path", "test.png");
-            src.connect_to ("output", dst, "input");
+            var rotate = graph.create_child ("gegl:rotate");
+            rotate.set_property ("degrees", 60);
+            over.connect_to ("output", rotate, "input");
+
+            var dst = graph.create_child ("gegl:save");
+            dst.set_property ("path", "test.jpeg");
+            rotate.connect_to ("output", dst, "input");
 
             dst.process ();
+
+            rotate.get_bounding_box (null);
+
+            //  Value val;
+            //  rotate.get_property ("bounding-box", out val);
+            //  void* bb = rotate.get_bounding_box ();
+
+
+            //  int stride = Cairo.Format.ARGB32.stride_for_width (200);
+            //  uchar[] data = new uint8[stride * 200];
+            //  rotate.blit (1.0, new Gegl.Rectangle (200, 400, 200, 200), "cairo-ARGB32", data, stride, Gegl.BlitFlags.DEFAULT);
+
+            //  var image = new Cairo.ImageSurface.for_data (data, Cairo.Format.ARGB32, 200, 200, stride);
+            //  var cr = new Cairo.Context (image);
+            //  cr.set_source_surface (image, 0, 0);
+            //  cr.paint();
+            //  image.write_to_png ("test-surface.png");
+
+            
             //  var graph = new Gegl.Node();
             //  var node = graph.create_child("gegl:load");
             //  node.set_property("path", "Apps.png");
