@@ -12,10 +12,7 @@ public class CanvasView : Clutter.Actor {
         background_color = Clutter.Color.get_static (Clutter.StaticColor.BLACK);
         reactive = true;
 
-        doc.size_updated.connect (on_doc_size_updated);
-        on_doc_size_updated ();
-
-        pipeline = new RenderPipeline (this);
+        pipeline = new RenderPipeline ();
 
         foreach (var layer in doc.layer_stack.get_unrolled ()) {
             add_layer (layer);
@@ -32,20 +29,24 @@ public class CanvasView : Clutter.Actor {
         add_child (actor);
     }
 
-    void on_doc_size_updated () {
-        //  set_size (doc.width, doc.height);
-        set_size (2000, 1000);
+    public void update_size (float w, float h) {
+        float pw, ph;
+        pipeline.get_size (out pw, out ph);
+        set_size (w, h);
+
+        if (pw != (uint)w || ph != (uint)h) {
+            pipeline.update ((int)w, (int)h);
+        }
     }
 
     public override void paint () {
-
         var timer = new Timer ();
         timer.start ();
 
         pipeline.begin_paint ();
         base.paint ();
-
         var texture = pipeline.get_current_texture ();
+
         Cogl.set_source_texture (texture);
         Cogl.rectangle (0, 0, texture.get_width (), texture.get_height ());
         timer.stop ();

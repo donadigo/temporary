@@ -21,14 +21,14 @@ public class RenderPipeline : Object {
         transparent = Cogl.Color.from_4ub (0, 0, 0, 0);
     }
 
-    public RenderPipeline (CanvasView canvas) {
-        Object (canvas: canvas);
+    construct {
+        update (1, 1);
     }
 
-    construct {
-        create_fbo ((int)canvas.width, (int)canvas.height, out a, out a_fbo);
-        create_fbo ((int)canvas.width, (int)canvas.height, out b, out b_fbo);
-        create_fbo ((int)canvas.width, (int)canvas.height, out layer, out layer_fbo);
+    public void update (int width, int height) {
+        create_fbo (width, height, out a, out a_fbo);
+        create_fbo (width, height, out b, out b_fbo);
+        create_fbo (width, height, out layer, out layer_fbo);
     }
 
     static void create_fbo (int width, int height, out Cogl.Texture texture, out Cogl.Offscreen fbo) {
@@ -42,8 +42,10 @@ public class RenderPipeline : Object {
     }
 
     public void begin_paint () {
-        clear_fbo (a_fbo);
-        clear_fbo (b_fbo);
+        // Clear previous FBO
+        unowned Cogl.Offscreen fbo = render_to_b ? b_fbo : a_fbo;
+        clear_fbo (fbo);
+
         render_to_b = !render_to_b;
     }
 
@@ -58,9 +60,9 @@ public class RenderPipeline : Object {
     }
 
     public void bind_current () {
-        unowned Cogl.Framebuffer fbo = render_to_b ? (Cogl.Framebuffer)b_fbo : (Cogl.Framebuffer)a_fbo;
-        Cogl.flush ();
-        Cogl.push_framebuffer (fbo);
+        unowned Cogl.Offscreen fbo = render_to_b ? b_fbo : a_fbo;
+        clear_fbo (fbo);
+        Cogl.push_framebuffer ((Cogl.Framebuffer)fbo);
     }
 
     public void end_current () {

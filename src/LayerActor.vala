@@ -36,7 +36,7 @@ public class LayerActor : Clutter.Actor {
 
             layer.update ();
         }
-            
+        
         return true;
     }
 
@@ -60,7 +60,6 @@ public class LayerActor : Clutter.Actor {
 
         return false;
     }
-
 
     public override void paint () {
         pipeline.bind_layer ();
