@@ -8,16 +8,17 @@ public class LayerStack : Object {
     public signal void added (Layer layer);
     public signal void removed (Layer layer);
 
+    public Layer? dirty { get; private set; }
+    public unowned Gee.LinkedList<LayerStackItem>? active { get; set; }
+
     construct {
-        items = new Gee.LinkedList<Layer> ();
-    }
-
-    public LayerStack () {
-
+        items = new Gee.LinkedList<LayerStackItem> ();
+        active = new Gee.LinkedList<LayerStackItem> ();
     }
 
     public void append (Layer layer) {
         items.add (layer);
+        layer.notify["dirty"].connect (() => on_layer_dirty_changed ());
         added (layer);
     }
 
@@ -31,7 +32,7 @@ public class LayerStack : Object {
         return -1;
     }
 
-    public Layer? get_by_index (int index) {
+    public unowned Layer? get_by_index (int index) {
         var unrolled = get_unrolled ();
         if (index < 0 || index > unrolled.size - 1) {
             return null;
@@ -40,7 +41,7 @@ public class LayerStack : Object {
         return unrolled[index];
     }
 
-    public Gee.LinkedList<Layer> get_unrolled () {
+    public Gee.LinkedList<unowned Layer> get_unrolled () {
         var unrolled = new Gee.LinkedList<Layer> ();
         foreach (var item in items) {
             if (item is LayerGroup) {
@@ -52,4 +53,17 @@ public class LayerStack : Object {
 
         return unrolled;
     }
+
+    void on_layer_dirty_changed () {
+        Idle.add (() => {
+            foreach (unowned Layer layer in get_unrolled ()) {
+                if (layer.dirty) {
+                    dirty = layer;
+                    break;
+                }
+            }
+
+            return false;
+        });
+    }    
 }

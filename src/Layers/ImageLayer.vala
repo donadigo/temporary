@@ -8,20 +8,16 @@ public class ImageLayer : Layer {
     Cogl.Material material;
     Cogl.PixelFormat format;
 
-    public ImageLayer (File? file) {
+    public ImageLayer (Document doc, File? file) {
         Object (file: file);
+        node = doc.graph.master.create_child ("gegl:layer");
     }
 
     construct {
         image = new Image ();
 
         if (file != null) {
-            var reader = new PngFileReader ();
-            reader.read.begin (file, (obj, res) => {
-                var output = reader.read.end (res);
-                image.data = output.data;
-                bounding_box = { 0, 0, output.width, output.height };
-                format = output.format;
+            load_file.begin (file, () => {
                 update ();
                 ready ();
             });
@@ -56,5 +52,25 @@ public class ImageLayer : Layer {
         );
 
         material.set_layer (0, texture);
+    }
+
+    public async void load_file (File file) {
+        var graph = new Gegl.Node ();
+        var load = graph.create_child ("gegl:load");
+        load.set_property ("path", file.get_path ());
+
+        var roi = GeglFixes.get_bounding_box (load);
+        int stride = roi.width * 4;
+
+        yield AsyncJob.queue (() => {
+            uint8* data = GeglFixes.blit<uint8*> (load, 1, roi, "R'G'B'A u8", stride * 4, Gegl.BlitFlags.DEFAULT);
+
+            image.data = new uint8[stride * roi.height];
+            Posix.memcpy (image.data, data, image.data.length);
+
+            format = Cogl.PixelFormat.RGBA_8888;
+            bounding_box = { 0, 0, roi.width, roi.height };            
+            return null;
+        });
     }
 }

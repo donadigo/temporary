@@ -2,8 +2,6 @@
 
 
 public class RenderPipeline : Object {
-    public unowned CanvasView canvas { get; construct; }
-
     Cogl.Offscreen a_fbo;
     Cogl.Texture a;
 
@@ -12,6 +10,9 @@ public class RenderPipeline : Object {
 
     Cogl.Offscreen layer_fbo;
     Cogl.Texture layer;
+
+    Cogl.Texture? cache = null;
+    Cogl.Offscreen cache_fbo;
 
     bool render_to_b = true;
 
@@ -29,6 +30,7 @@ public class RenderPipeline : Object {
         create_fbo (width, height, out a, out a_fbo);
         create_fbo (width, height, out b, out b_fbo);
         create_fbo (width, height, out layer, out layer_fbo);
+        create_fbo (width, height, out cache, out cache_fbo);
     }
 
     static void create_fbo (int width, int height, out Cogl.Texture texture, out Cogl.Offscreen fbo) {
@@ -81,7 +83,27 @@ public class RenderPipeline : Object {
     }
 
     public unowned Cogl.Texture get_layer_texture () {
-        return layer;   
+        return layer;
+    }
+
+    public void cache_current () {
+        unowned Cogl.Texture current = get_current_texture ();
+        Cogl.push_framebuffer ((Cogl.Framebuffer)cache_fbo);
+        Cogl.push_matrix ();
+        Cogl.clear (transparent, Cogl.BufferBit.COLOR);
+        Cogl.set_source_texture (current);
+        Cogl.scale (1, -1, 1);
+        Cogl.rectangle (-1, -1, 1, 1);
+        Cogl.pop_matrix ();
+        Cogl.pop_framebuffer ();
+    }
+
+    public void restore_cache () {
+        unowned Cogl.Texture current = get_current_texture ();
+        bind_current ();
+        Cogl.set_source_texture (cache);
+        Cogl.rectangle (0, 0, current.get_width (), current.get_height ());
+        end_current ();
     }
 
     private static void clear_fbo (Cogl.Offscreen fbo) {

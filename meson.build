@@ -55,6 +55,7 @@ executable(
         dependency('clutter-gtk-1.0'),
         dependency('gegl-0.4'),
         dependency('gegl-gtk3-0.1'),
+        meson.get_compiler('vala').find_library('posix'),
         meson.get_compiler('vala').find_library('gegl-fixes', dirs: join_paths(meson.current_source_dir(), 'gegl-fixes')),
         meson.get_compiler('c').find_library('m', required : false)
     ],

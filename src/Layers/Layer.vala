@@ -1,5 +1,5 @@
 
-public class Layer : Object, LayerStackItem {
+public abstract class Layer : Object, LayerStackItem {
     public bool visible { get; set; }
     public string name { get; set; }
     public float opacity { get; set; default = 1.0f; }
@@ -9,9 +9,14 @@ public class Layer : Object, LayerStackItem {
     public signal void repaint ();
     public signal void ready ();
 
-    Cogl.Material screen_material;
+    // Dirty = is in the transform mode
+    public bool dirty { get; set; default = false; }
 
-    construct {
+    public Gegl.Node node { get; protected set; }
+
+    static Cogl.Material screen_material;
+
+    static construct {
         screen_material = new Cogl.Material ();
         screen_material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         screen_material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);

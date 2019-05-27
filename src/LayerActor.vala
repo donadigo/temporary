@@ -5,6 +5,7 @@ public class LayerActor : Clutter.Actor {
     public Layer layer { get; construct; }
     public unowned RenderPipeline pipeline { get; construct; }
 
+
     bool dragging = false;
     float drag_x = 0;
     float drag_y = 0;
@@ -42,6 +43,7 @@ public class LayerActor : Clutter.Actor {
 
     public override bool button_release_event (Clutter.ButtonEvent event) {
         if (event.button == 1) {
+            layer.dirty = false;
             dragging = false;
             return true;
         }
@@ -51,6 +53,7 @@ public class LayerActor : Clutter.Actor {
 
     public override bool button_press_event (Clutter.ButtonEvent event) {
         if (event.button == 1) {
+            layer.dirty = true;
             drag_x = event.x;
             drag_y = event.y;
             start_box = layer.bounding_box;

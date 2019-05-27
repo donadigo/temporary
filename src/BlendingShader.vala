@@ -49,40 +49,26 @@ public class BlendingShader : Object {
             vec4 t1 = texture2D(tex1, cogl_tex_coord1_in.xy);
 
             vec4 c = t1;
-            switch (type) {
-                case 0:
-                    c = t1;
-                    break;
-                case 1:
-                    c = t0 * t1;
-                    break;
-                case 2:
-                    c = 1 - (1 - t0) * (1 - t1);
-                    break;
-                case 3:
-                    c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
-                    break;
-                case 4:
-                    c = vec4 (soft_light (t0.rgb, t1.rgb), 1.0);
-                    break;
-                case 5:
-                    c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
-                    break;
-                case 6:
-                    c = vec4 (color_burn (t0.rgb, t1.rgb), 1.0);
-                    break;
-                case 7:
-                    c = max (t0 + t1 - 1, 0);
-                    break;
-                case 8:
-                    c = min(t0 + t1, vec4 (1.0));
-                    break;
-                case 9:
-                    c = t0 + t1 - 1;
-                    break;
-                case 10:
-                    c = t0 + t1 - 2.0 * t0 * t1;
-                    break;
+            if (type == 1) {
+                c = t0 * t1;
+            } else if (type == 2) {
+                c = 1 - (1 - t0) * (1 - t1);
+            } else if (type == 3) {
+                c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
+            } else if (type == 4) {
+                c = vec4 (soft_light (t0.rgb, t1.rgb), 1.0);
+            } else if (type == 5) {
+                c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
+            } else if (type == 6) {
+                c = vec4 (color_burn (t0.rgb, t1.rgb), 1.0);
+            } else if (type == 7) {
+                c = max (t0 + t1 - 1, 0);
+            } else if (type == 8) {
+                c = min(t0 + t1, vec4 (1.0));
+            } else if (type == 9) {
+                c = t0 + t1 - 1;
+            } else if (type == 10) {
+                c = t0 + t1 - 2.0 * t0 * t1;
             }
 
             cogl_color_out = mix(t0, c, t1.a);

@@ -19,10 +19,11 @@ gpointer gegl_fixes_blit (GeglNode* node,
                           GeglBlitFlags flags)
 {
     g_return_if_fail (node);
-
+    Babl* bformat;
     gpointer buf;
 
+    bformat = babl_format (format);
     buf = g_malloc (roi->height * rowstride);
-    gegl_node_blit(node, scale, roi, babl_format(format), (gpointer)buf, rowstride, flags);
+    gegl_node_blit(node, scale, roi, bformat, (gpointer)buf, GEGL_AUTO_ROWSTRIDE, flags);
     return buf;
 }

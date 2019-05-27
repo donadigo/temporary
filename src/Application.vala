@@ -24,11 +24,10 @@ public class CApp : Gtk.Application {
     public static int main (string[] args) {
         GtkClutter.init (ref args);
         Gegl.init (ref args);
-        //  Gegl.init (ref args);
         
-        Gegl.config ().threads = 4;
-        Gegl.config ().use_opencl = true;
-        Gegl.config ().tile_cache_size = 2000000000;
+        //  Gegl.config ().threads = 4;
+        //  Gegl.config ().use_opencl = true;
+        //  Gegl.config ().tile_cache_size = 2000000000;
         //  Gegl.cl_init ();
 
         //  var graph = new Gegl.Node ();
@@ -137,9 +136,10 @@ public class CApp : Gtk.Application {
         //  w.add (box);
         //  w.show_all ();
 
-            //  Gtk.main_quit ();
-            //  return false;
-        //  });
+        //  //      Gtk.main_quit ();
+        //  //      return false;
+        //  //  });
+        //  Gtk.main();
 
         //  var b = new Gdk.Pixbuf.with_unowned_data (pixels, Gdk.Colorspace.RGB, true, 8, 1920, 1080, 1920 * 4);
 
