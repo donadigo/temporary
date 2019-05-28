@@ -7,6 +7,8 @@ public class Document : Object {
     public int width { get; construct set; }
     public int height { get; construct set; }
 
+    public float scale { get; set; default = 1.0f; }
+
     public signal void size_updated ();
 
     construct {
