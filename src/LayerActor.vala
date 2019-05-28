@@ -5,12 +5,11 @@ public class LayerActor : Clutter.Actor {
     public Layer layer { get; construct; }
     public unowned RenderPipeline pipeline { get; construct; }
 
-
     bool dragging = false;
     float drag_x = 0;
     float drag_y = 0;
 
-    Gdk.Rectangle start_box;
+    Gegl.Rectangle start_box;
 
     public LayerActor (Document doc, Layer layer, RenderPipeline pipeline) {
         Object (doc: doc, layer: layer, pipeline: pipeline);
@@ -23,17 +22,18 @@ public class LayerActor : Clutter.Actor {
         update_bounding_box ();
         update_opacity ();
 
-        set_pivot_point (0.5f, 0.5f);
+        notify["scale-x"].connect (update_position);
+        notify["scale-y"].connect (update_position);
     }
 
     public override bool motion_event (Clutter.MotionEvent event) {
         if (dragging) {
-            float delta_x = event.x - drag_x;
-            float delta_y = event.y - drag_y;
-            layer.bounding_box = {
+            float delta_x = event.x / (float)scale_x - drag_x;
+            float delta_y = event.y / (float)scale_y - drag_y;
+            layer.bounding_box = new Gegl.Rectangle (
                 start_box.x + (int)delta_x, start_box.y + (int)delta_y,
                 layer.bounding_box.width, layer.bounding_box.height
-            };
+            );
 
             layer.update ();
         }
@@ -43,6 +43,7 @@ public class LayerActor : Clutter.Actor {
 
     public override bool button_release_event (Clutter.ButtonEvent event) {
         if (event.button == 1) {
+            doc.process_graph ();
             layer.dirty = false;
             dragging = false;
             return true;
@@ -54,8 +55,8 @@ public class LayerActor : Clutter.Actor {
     public override bool button_press_event (Clutter.ButtonEvent event) {
         if (event.button == 1) {
             layer.dirty = true;
-            drag_x = event.x;
-            drag_y = event.y;
+            drag_x = event.x / (float)scale_x;
+            drag_y = event.y / (float)scale_y;
             start_box = layer.bounding_box;
             dragging = true;
             return true;
@@ -91,9 +92,13 @@ public class LayerActor : Clutter.Actor {
         pipeline.end_current ();
     }
 
+    void update_position () {
+        set_position (layer.bounding_box.x * (float)scale_x, layer.bounding_box.y * (float)scale_y);
+    }
+
     void update_bounding_box () {
-        set_position (layer.bounding_box.x, layer.bounding_box.y);
         set_size (layer.bounding_box.width, layer.bounding_box.height);
+        update_position ();
     }
 
     void update_opacity () {

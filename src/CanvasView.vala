@@ -10,7 +10,7 @@ public class CanvasView : Clutter.Actor {
     }
 
     construct {
-        background_color = Clutter.Color.get_static (Clutter.StaticColor.BLACK);
+        background_color = Clutter.Color.get_static (Clutter.StaticColor.WHITE);
         reactive = true;
 
         pipeline = new RenderPipeline ();

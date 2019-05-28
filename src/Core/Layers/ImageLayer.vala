@@ -8,6 +8,8 @@ public class ImageLayer : Layer {
     Cogl.Material material;
     Cogl.PixelFormat format;
 
+    Gegl.Node load;
+
     public ImageLayer (Document doc, File? file) {
         Object (file: file);
         node = doc.graph.master.create_child ("gegl:layer");
@@ -56,7 +58,7 @@ public class ImageLayer : Layer {
 
     public async void load_file (File file) {
         var graph = new Gegl.Node ();
-        var load = graph.create_child ("gegl:load");
+        load = graph.create_child ("gegl:load");
         load.set_property ("path", file.get_path ());
 
         var roi = GeglFixes.get_bounding_box (load);
@@ -69,8 +71,21 @@ public class ImageLayer : Layer {
             Posix.memcpy (image.data, data, image.data.length);
 
             format = Cogl.PixelFormat.RGBA_8888;
-            bounding_box = { 0, 0, roi.width, roi.height };            
+            bounding_box = new Gegl.Rectangle (0, 0, roi.width, roi.height);
             return null;
         });
+    }
+
+    public override Gegl.Node process (Gegl.Node source) {
+        node.set_property ("x", bounding_box.x);
+        node.set_property ("y", bounding_box.y);
+
+        load.connect_to ("output", node, "input");
+
+        var over = node.get_parent ().create_child ("gegl:over");
+        source.connect_to ("output", over, "input");
+        node.connect_to ("output", over, "aux");
+
+        return over;
     }
 }

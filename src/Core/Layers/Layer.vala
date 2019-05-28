@@ -5,7 +5,7 @@ public abstract class Layer : Object, LayerStackItem {
     public float opacity { get; set; default = 1.0f; }
     public BlendingMode blending_mode { get; set; default = BlendingMode.NORMAL; }
 
-    public Gdk.Rectangle bounding_box { get; set; }
+    public Gegl.Rectangle bounding_box { get; set; }
     public signal void repaint ();
     public signal void ready ();
 
@@ -37,6 +37,8 @@ public abstract class Layer : Object, LayerStackItem {
 
         Cogl.rectangle (0, 0, current.get_width (), current.get_height ());
     }
+
+    public abstract Gegl.Node process (Gegl.Node source);
 
     public virtual void update () {
 
