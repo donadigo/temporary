@@ -26,6 +26,35 @@ public class LayerActor : Clutter.Actor {
         notify["scale-y"].connect (update_position);
     }
 
+    public override bool key_press_event (Clutter.KeyEvent event) {
+        doc.enter_actor_mode ();
+        switch (event.keyval) {
+            case Clutter.Key.Left:
+                layer.bounding_box.x -= 1;
+                update_bounding_box ();
+                break;
+            case Clutter.Key.Right:
+                layer.bounding_box.x += 1;
+                update_bounding_box ();
+                break;
+            case Clutter.Key.Down:
+                layer.bounding_box.y += 1;
+                update_bounding_box ();
+                break;
+            case Clutter.Key.Up:
+                layer.bounding_box.y -= 1;
+                update_bounding_box ();
+                break;                    
+        }
+
+        return true;
+    }
+
+    public override bool key_release_event (Clutter.KeyEvent event) {
+        doc.process_graph ();
+        return true;
+    }
+
     public override bool motion_event (Clutter.MotionEvent event) {
         if (dragging) {
             float delta_x = event.x / (float)scale_x - drag_x;
@@ -54,6 +83,9 @@ public class LayerActor : Clutter.Actor {
 
     public override bool button_press_event (Clutter.ButtonEvent event) {
         if (event.button == 1) {
+            get_stage ().set_key_focus (this);
+            doc.enter_actor_mode ();
+
             layer.dirty = true;
             drag_x = event.x / (float)scale_x;
             drag_y = event.y / (float)scale_y;

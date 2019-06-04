@@ -9,7 +9,7 @@ public abstract class Layer : Object, LayerStackItem {
     public signal void repaint ();
     public signal void ready ();
 
-    // Dirty = is in the transform mode
+    // Dirty = is in the actor mode
     public bool dirty { get; set; default = false; }
 
     public Gegl.Node node { get; protected set; }
@@ -38,7 +38,7 @@ public abstract class Layer : Object, LayerStackItem {
         Cogl.rectangle (0, 0, current.get_width (), current.get_height ());
     }
 
-    public abstract Gegl.Node process (Gegl.Node source);
+    public abstract Gegl.Node process (Gegl.Node graph, Gegl.Node source);
 
     public virtual void update () {
 

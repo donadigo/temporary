@@ -25,7 +25,7 @@ namespace Gegl {
 	}
 	[CCode (cheader_filename = "gegl.h", type_id = "gegl_buffer_get_type ()")]
 	public class Buffer : Gegl.TileHandler {
-		public Buffer (Gegl.Rectangle rectangle, string? format);
+		public Buffer (Gegl.Rectangle rectangle, void* format);
 		public void add_handler (void* handler);
 		public void clear (Gegl.Rectangle roi);
 		public void copy (Gegl.Rectangle src_rect, Gegl.AbyssPolicy repeat_mode, Gegl.Buffer dst, Gegl.Rectangle dst_rect);
@@ -42,7 +42,7 @@ namespace Gegl {
 		public uint8[] introspectable_get (Gegl.Rectangle rect, double scale, string? format_name, Gegl.AbyssPolicy repeat_mode);
 		[CCode (cname = "gegl_buffer_introspectable_new", has_construct_function = false)]
 		public Buffer.introspectable_new (string format_name, int x, int y, int width, int height);
-		public void introspectable_set (Gegl.Rectangle rect, string format_name, [CCode (array_length_cname = "src_length", array_length_pos = 3.1)] uint8[] src);
+		public void set (Gegl.Rectangle rect, int mipmap_level, void* format, [CCode (array_length = false)] uint8[] src, int rowstride);
 		public void linear_close (void* linear);
 		public static Gegl.Buffer load (string path);
 		public static Gegl.Buffer open (string path);
@@ -183,7 +183,7 @@ namespace Gegl {
 		[CCode (has_construct_function = false)]
 		public Node ();
         public unowned Gegl.Node add_child (Gegl.Node child);
-        public void blit (double scale, Gegl.Rectangle roi, string? format, void* buffer, int rowstride, Gegl.BlitFlags flags);
+        public void blit (double scale, Gegl.Rectangle roi, void* format, void* buffer, int rowstride, Gegl.BlitFlags flags);
 		public void blit_buffer (Gegl.Buffer? buffer, Gegl.Rectangle? roi, int level, Gegl.AbyssPolicy abyss_policy);
 		public bool connect_from (string input_pad_name, Gegl.Node source, string output_pad_name);
 		public bool connect_to (string output_pad_name, Gegl.Node sink, string input_pad_name);

@@ -11,19 +11,21 @@ GeglRectangle* gegl_fixes_get_bounding_box (GeglNode* node)
     return gegl_rectangle_dup (&box);
 }
 
-gpointer gegl_fixes_blit (GeglNode* node,
-                          gdouble scale,
-                          const GeglRectangle* roi,
-                          const gchar* format,
-                          gint rowstride,
-                          GeglBlitFlags flags)
+void* gegl_fixes_format (const gchar* format)
 {
-    g_return_if_fail (node);
+    return babl_format(format);
+}
+
+void gegl_fixes_set (GeglBuffer* buffer,
+                    const GeglRectangle* rect,
+                    gint mipmap_level, 
+                    const gchar* format, 
+                    const void* src,
+                    gint rowstride)
+{
+    g_return_if_fail (buffer);
     Babl* bformat;
-    gpointer buf;
 
     bformat = babl_format (format);
-    buf = g_malloc (roi->height * rowstride);
-    gegl_node_blit(node, scale, roi, bformat, (gpointer)buf, GEGL_AUTO_ROWSTRIDE, flags);
-    return buf;
-}
+    gegl_buffer_set(buffer, rect, mipmap_level, bformat, src, GEGL_AUTO_ROWSTRIDE);
+}                    

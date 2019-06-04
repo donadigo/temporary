@@ -24,6 +24,7 @@ public class CApp : Gtk.Application {
     public static int main (string[] args) {
         GtkClutter.init (ref args);
         Gegl.init (ref args);
+        Formats.init ();
         
         //  Gegl.config ().threads = 4;
         //  Gegl.config ().use_opencl = true;

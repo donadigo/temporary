@@ -28,6 +28,8 @@ public class CanvasView : Clutter.Actor {
                 cached = false;
             }
         });
+
+        doc.repaint.connect (queue_redraw);
     }
 
     
@@ -44,6 +46,28 @@ public class CanvasView : Clutter.Actor {
     }
 
     public override void paint () {
+        if (doc.display_mode == GRAPH) {
+            paint_graph ();
+        } else {
+            paint_actors ();
+        }
+    }
+
+    private void paint_graph () {
+        uint width, height;
+        pipeline.get_size (out width, out height);
+
+        var texture = new Cogl.Texture.from_data (
+            (uint)doc.width, (uint)doc.height,
+            Cogl.TextureFlags.NONE, Cogl.PixelFormat.RGBA_8888, Cogl.PixelFormat.ANY,
+            4 * doc.width, doc.image.data
+        );
+
+        Cogl.set_source_texture (texture);
+        Cogl.rectangle (0, 0, width, height);
+    }
+
+    private void paint_actors () {
         var timer = new Timer ();
         timer.start ();
 

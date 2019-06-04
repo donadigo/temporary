@@ -4,4 +4,8 @@ public class Image : Object {
     public Image () {
 
     }
+
+    public void allocate (int width, int height, int stride) {
+        data = new uint8[width * stride * height];
+    }
 }

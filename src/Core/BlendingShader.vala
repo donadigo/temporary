@@ -9,7 +9,18 @@ public enum BlendingMode {
     LINEAR_BURN = 7,
     ADD = 8,
     SUBTRACT = 9,
-    EXCLUSION = 10
+    EXCLUSION = 10;
+
+    public static string to_gegl_op (BlendingMode mode) {
+        switch (mode) {
+            case LINEAR_BURN:
+                return "gegl:color-burn";
+            case OVERLAY:
+                return "gegl:overlay";
+            default:
+                return "gegl:over";
+        }
+    }
 }
 
 public class BlendingShader : Object {

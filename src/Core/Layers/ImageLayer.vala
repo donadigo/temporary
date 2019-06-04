@@ -28,8 +28,8 @@ public class ImageLayer : Layer {
         }
 
         material = new Cogl.Material ();
-        material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
-        material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
+        //  material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
+        //  material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
     }
 
     public override void paint_content (Document doc, LayerActor actor) {
@@ -64,11 +64,9 @@ public class ImageLayer : Layer {
         var roi = GeglFixes.get_bounding_box (load);
         int stride = roi.width * 4;
 
-        yield AsyncJob.queue (() => {
-            uint8* data = GeglFixes.blit<uint8*> (load, 1, roi, "R'G'B'A u8", stride * 4, Gegl.BlitFlags.DEFAULT);
-
-            image.data = new uint8[stride * roi.height];
-            Posix.memcpy (image.data, data, image.data.length);
+        yield AsyncJob.queue (JobType.LOAD_FILE, QueueFlags.NONE, (job) => {
+            image.allocate (roi.width, roi.height, 4);
+            load.blit (1, roi, Formats.RGBA_u8, image.data, stride, Gegl.BlitFlags.DEFAULT);
 
             format = Cogl.PixelFormat.RGBA_8888;
             bounding_box = new Gegl.Rectangle (0, 0, roi.width, roi.height);
@@ -76,15 +74,24 @@ public class ImageLayer : Layer {
         });
     }
 
-    public override Gegl.Node process (Gegl.Node source) {
-        node.set_property ("x", bounding_box.x);
-        node.set_property ("y", bounding_box.y);
+    public override Gegl.Node process (Gegl.Node graph, Gegl.Node source) {
+        var roi = new Gegl.Rectangle (0, 0, bounding_box.width, bounding_box.height);
+        var buffer = new Gegl.Buffer (roi, Formats.RGBA_u8);
+        buffer.set (roi, 0, Formats.RGBA_u8, image.data, roi.width * 4);
 
-        load.connect_to ("output", node, "input");
+        var bsource = graph.create_child ("gegl:buffer-source");
+        bsource.set_property ("buffer", buffer);
 
-        var over = node.get_parent ().create_child ("gegl:over");
+        var translate = graph.create_child ("gegl:translate");
+        translate.set_property ("x", bounding_box.x);
+        translate.set_property ("y", bounding_box.y);
+
+        bsource.connect_to ("output", translate, "input");
+
+        string op = BlendingMode.to_gegl_op (blending_mode);
+        var over = node.get_parent ().create_child (op);
         source.connect_to ("output", over, "input");
-        node.connect_to ("output", over, "aux");
+        translate.connect_to ("output", over, "aux");
 
         return over;
     }

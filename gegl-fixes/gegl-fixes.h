@@ -2,9 +2,12 @@
 #include <gegl.h>
 
 GeglRectangle *gegl_fixes_get_bounding_box(GeglNode *node);
-gpointer gegl_fixes_blit(GeglNode *node,
-                         gdouble scale,
-                         const GeglRectangle *roi,
-                         const gchar *format,
-                         gint rowstride,
-                         GeglBlitFlags flags);
+
+void gegl_fixes_set(GeglBuffer *buffer,
+                    const GeglRectangle *rect,
+                    gint mipmap_level,
+                    const gchar *format,
+                    const void *src,
+                    gint rowstride);
+         
+void *gegl_fixes_format(const gchar *format);
