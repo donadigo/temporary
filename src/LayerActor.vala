@@ -24,6 +24,9 @@ public class LayerActor : Clutter.Actor {
 
         notify["scale-x"].connect (update_position);
         notify["scale-y"].connect (update_position);
+        doc.notify["scale"].connect (() => {
+            set_scale (doc.scale, doc.scale);
+        });
     }
 
     public override bool key_press_event (Clutter.KeyEvent event) {
@@ -57,8 +60,12 @@ public class LayerActor : Clutter.Actor {
 
     public override bool motion_event (Clutter.MotionEvent event) {
         if (dragging) {
-            float delta_x = event.x / (float)scale_x - drag_x;
-            float delta_y = event.y / (float)scale_y - drag_y;
+            float ex = event.x / (float)scale_x;
+            float ey = event.y / (float)scale_y;
+            get_parent ().transform_stage_point (ex, ey, out ex, out ey);
+
+            float delta_x = ex - drag_x;
+            float delta_y = ey - drag_y;
             layer.bounding_box = new Gegl.Rectangle (
                 start_box.x + (int)delta_x, start_box.y + (int)delta_y,
                 layer.bounding_box.width, layer.bounding_box.height
@@ -87,8 +94,13 @@ public class LayerActor : Clutter.Actor {
             doc.enter_actor_mode ();
 
             layer.dirty = true;
-            drag_x = event.x / (float)scale_x;
-            drag_y = event.y / (float)scale_y;
+
+            float ex = event.x / (float)scale_x;
+            float ey = event.y / (float)scale_y;
+            get_parent ().transform_stage_point (ex, ey, out ex, out ey);
+
+            drag_x = ex;
+            drag_y = ey;
             start_box = layer.bounding_box;
             dragging = true;
             return true;

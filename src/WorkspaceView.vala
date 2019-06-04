@@ -5,8 +5,6 @@ public class WorkspaceView : Dazzle.DockBin {
     CanvasView cv;
     Clutter.Stage stage;
 
-    float scale = 1.0f;
-
     construct {
         cv = new CanvasView (doc);
         cv.set_pivot_point (0.5f, 0.5f);
@@ -17,7 +15,7 @@ public class WorkspaceView : Dazzle.DockBin {
         stage.notify["allocation"].connect (on_allocation_changed);
 
         stage.add_child (cv);
-        cv.update_size (stage.get_width (), stage.get_height ());
+        doc.notify["scale"].connect (on_allocation_changed);
 
         add (embed);
         on_allocation_changed ();
@@ -31,18 +29,27 @@ public class WorkspaceView : Dazzle.DockBin {
         float w, h;
         calculate_aspect_ratio_size_fit (doc.width, doc.height, stage.width, stage.height, out w, out h);
 
-        float canvas_width = float.min (stage.width, w * scale);
-        float canvas_height = float.min (stage.height, h * scale);
+        float canvas_width = float.min (stage.width, w * doc.scale);
+        float canvas_height = float.min (stage.height, h * doc.scale);
         Idle.add (() => {
             cv.update_size (canvas_width, canvas_height);
             return false;            
         });
 
         foreach (var child in cv.get_children ()) {
-            child.set_scale (w * scale / (float)doc.width, h * scale / (float)doc.height);
+            child.set_scale (w * doc.scale / (float)doc.width, h * doc.scale / (float)doc.height);
         }
 
         cv.set_position (stage.get_width () / 2 - canvas_width / 2, stage.get_height () / 2 - canvas_height / 2);
+    }
+
+    void update_children_scale () {
+        float w, h;
+        calculate_aspect_ratio_size_fit (doc.width, doc.height, stage.width, stage.height, out w, out h);
+
+        foreach (var child in cv.get_children ()) {
+            child.set_scale (w * doc.scale / (float)doc.width, h * doc.scale / (float)doc.height);
+        }
     }
 
     // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/

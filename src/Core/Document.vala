@@ -12,6 +12,8 @@ public class Document : Object {
     public DisplayMode display_mode { get; set; default = DisplayMode.ACTOR; }
     public Image image { get; construct; }
 
+    public float scale { get; set; default = 1.0f; }
+
     public signal void size_updated ();
     public signal void repaint ();
 
