@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/github/donadigo/temporary">
+    <file alias="tool-rectangle-select.svg" compressed="true" preprocess="xml-stripblanks">tool-rectangle-select.svg</file>
+    <file alias="tool-free-select.svg" compressed="true" preprocess="xml-stripblanks">tool-free-select.svg</file>
+  </gresource>
+</gresources>

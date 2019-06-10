@@ -9,16 +9,16 @@ public enum JobType {
     PROCESS_GRAPH
 }
 
-public class Job {
-    public AsyncJob.JobCallback callback;
-    public int type;
-    public int id;
-    public bool cancelled;
-
-    public signal void finished ();
-}
-
 public class AsyncJob : Object {
+    public class Job {
+        public AsyncJob.JobCallback callback;
+        public int type;
+        public int id;
+        public bool cancelled;
+
+        public signal void finished ();
+    }
+
     public delegate void* JobCallback (Job job);    
 
     private Thread worker_thread;

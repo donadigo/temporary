@@ -54,6 +54,16 @@ public class BlendingShader : Object {
             );
         }
 
+        float color_burn_gegl (float cA, float cB, float aA, float aB) {
+            float aD = aA + aB - aA * aB;
+
+            if (cA * aB + cB * aA <= aA * aB) {
+                return clamp (cA * (1 - aB) + cB * (1 - aA), 0, aD);
+            } else {
+                return clamp ((cA == 0 ? 1 : (aA * (cA * aB + cB * aA - aA * aB) / cA) + cA * (1 - aB) + cB * (1 - aA)), 0, aD);
+            }
+        }
+
 
         void main () {
             vec4 t0 = texture2D(tex0, cogl_tex_coord0_in.xy);
@@ -73,7 +83,15 @@ public class BlendingShader : Object {
             } else if (type == 6) {
                 c = vec4 (color_burn (t0.rgb, t1.rgb), 1.0);
             } else if (type == 7) {
-                c = max (t0 + t1 - 1, 0);
+                //  c = max (t0 + t1 - 1, 0);
+
+                float aD = t1.a + t0.a - t1.a * t0.a;
+                float r = color_burn_gegl(t1.r, t0.r, t1.a, t0.a);
+                float g = color_burn_gegl(t1.g, t0.g, t1.a, t0.a);
+                float b = color_burn_gegl(t1.b, t0.b, t1.a, t0.a);
+
+                c = vec4(r, g, b, aD);
+                //  if ()
             } else if (type == 8) {
                 c = min(t0 + t1, vec4 (1.0));
             } else if (type == 9) {

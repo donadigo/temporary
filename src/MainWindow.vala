@@ -8,6 +8,9 @@ public class CMainWindow : Gtk.ApplicationWindow {
     }
 
     construct {
+        weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
+        default_theme.add_resource_path ("/com/github/donadigo/temporary");
+
         header_bar = new CHeaderBar ();
         set_titlebar (header_bar);
         set_default_size (800, 800);

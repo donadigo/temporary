@@ -12,7 +12,7 @@ public class Document : Object {
     public DisplayMode display_mode { get; set; default = DisplayMode.ACTOR; }
     public Image image { get; construct; }
 
-    public float scale { get; set; default = 1.0f; }
+    public float scale { get; set; default = 2.0f; }
 
     public signal void size_updated ();
     public signal void repaint ();
@@ -33,7 +33,7 @@ public class Document : Object {
     }
 
     public void process_graph () {
-        AsyncJob.queue (JobType.PROCESS_GRAPH, QueueFlags.CANCEL_ALL, (job) => {
+        AsyncJob.queue.begin (JobType.PROCESS_GRAPH, QueueFlags.CANCEL_ALL, (job) => {
             var graph = new Gegl.Node ();
             var current = graph;
             foreach (unowned Layer layer in layer_stack.get_unrolled ()) {

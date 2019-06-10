@@ -28,8 +28,8 @@ public class ImageLayer : Layer {
         }
 
         material = new Cogl.Material ();
-        //  material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
-        //  material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
+        material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
+        material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
     }
 
     public override void paint_content (Document doc, LayerActor actor) {
@@ -90,6 +90,10 @@ public class ImageLayer : Layer {
 
         string op = BlendingMode.to_gegl_op (blending_mode);
         var over = node.get_parent ().create_child (op);
+        if (op == "gegl:color-burn") {
+            over.set_property ("srgb", true);
+        }
+
         source.connect_to ("output", over, "input");
         translate.connect_to ("output", over, "aux");
 

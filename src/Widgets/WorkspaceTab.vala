@@ -5,10 +5,14 @@ public class WorkspaceTab : Granite.Widgets.Tab {
     public Document doc { get; construct; }
  
     construct {
-        doc = new Document (1000, 1000);
+        doc = new Document (3000, 3000);
         ws_view = new WorkspaceView (doc);
 
-        var page_widget = new Gtk.Grid ();
+        var tool_window = new ToolDockWidget ();
+
+        var page_widget = new Dazzle.DockPaned ();
+        page_widget.orientation = Gtk.Orientation.HORIZONTAL;
+        page_widget.add (tool_window);
         page_widget.add (ws_view);
 
         page = page_widget;

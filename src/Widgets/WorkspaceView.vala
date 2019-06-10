@@ -11,7 +11,7 @@ public class WorkspaceView : Dazzle.DockBin {
 
         var embed = new GtkClutter.Embed ();
         stage = (Clutter.Stage)embed.get_stage ();
-        stage.background_color = Clutter.Color.from_string ("#282828");
+        stage.background_color = Clutter.Color.from_string ("#212326");
         stage.notify["allocation"].connect (on_allocation_changed);
 
         stage.add_child (cv);

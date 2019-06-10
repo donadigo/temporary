@@ -2,25 +2,19 @@
 
 
 public class MainView : Gtk.Grid {
-    WorkspaceView ws_view;
-    Document doc;
-
     NotebookView notebook_view;
 
     construct {
-        doc = new Document (10000, 3000);
-        ws_view = new WorkspaceView (doc);
-
         notebook_view = new NotebookView ();
+
         var tab = new WorkspaceTab ();
         notebook_view.insert_tab (tab, 0);
 
         var paned = new Dazzle.DockPaned ();
         paned.orientation = Gtk.Orientation.HORIZONTAL;
         paned.add (notebook_view);
-        //  paned.add (ws_view);
 
-        add_layers (tab);
+        add_layers.begin (tab);
 
         add (paned);
     }

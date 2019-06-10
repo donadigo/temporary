@@ -16,6 +16,8 @@ add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()),  l
 
 posix_dep = meson.get_compiler('vala').find_library('posix')
 
+subdir('data')
+
 gegl_fixes_files = files(
     'gegl-fixes/gegl-fixes.c',
     'gegl-fixes/gegl-fixes.h'
@@ -25,14 +27,16 @@ executable(
     meson.project_name(),
     'src/Application.vala',
     'src/MainWindow.vala',
-    'src/HeaderBar.vala',
-    'src/WorkspaceView.vala',
-    'src/MainView.vala',
-    'src/CanvasView.vala',
-    'src/HeaderMenuButton.vala',
     'src/LayerActor.vala',
-    'src/NotebookView.vala',
-    'src/WorkspaceTab.vala',
+    'src/Widgets/HeaderBar.vala',
+    'src/Widgets/WorkspaceView.vala',
+    'src/Widgets/MainView.vala',
+    'src/Widgets/CanvasView.vala',
+    'src/Widgets/HeaderMenuButton.vala',
+    'src/Widgets/NotebookView.vala',
+    'src/Widgets/ToolDockWidget.vala',
+    'src/Widgets/WorkspaceTab.vala',
+    'src/Widgets/ToolButton.vala',
     'src/Core/Document.vala',
     'src/Core/Types.vala',
     'src/Core/AsyncJob.vala',
@@ -46,13 +50,21 @@ executable(
     'src/Core/BlendingShader.vala',
     'src/Core/ImageGraph.vala',
     'src/Core/Action.vala',
+    'src/Core/ToolItem.vala',
+    'src/Core/ToolItemGroup.vala',
+    'src/Core/ToolCollection.vala',
+    'src/Core/Tools/MoveToolItem.vala',
+    'src/Core/Tools/RectangleSelectToolItem.vala',
+    'src/Core/Tools/FreeSelectToolItem.vala',    
+    'src/Core/Tools/AutoSelectToolItem.vala',
+    'src/Core/Tools/DrawPathToolItem.vala',
     'src/Core/TransformAction.vala',
     'src/Core/Formats.vala',
     'src/Core/RenderPipeline.vala',
     'src/Core/FileReader.vala',
-    'src/Core/PngFileReader.vala',
     'src/NewDocumentDialog.vala',
     gegl_fixes_files,
+    icons_gresource,
     dependencies: [
         dependency('glib-2.0'),
         dependency('gee-0.8'),
