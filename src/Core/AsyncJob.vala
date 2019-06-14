@@ -6,7 +6,8 @@ public enum QueueFlags {
 
 public enum JobType {
     LOAD_FILE,
-    PROCESS_GRAPH
+    PROCESS_GRAPH,
+    SCALE_PIXBUF
 }
 
 public class AsyncJob : Object {

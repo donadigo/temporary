@@ -11,6 +11,10 @@ public class CApp : Gtk.Application {
     }
 
     public override void activate () {
+        var provider = new Gtk.CssProvider ();
+        provider.load_from_resource ("com/github/donadigo/crazy-project/application.css");
+        Gtk.StyleContext.add_provider_for_screen (Gdk.Screen.get_default (), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
         unowned List<Gtk.Window> windows = get_windows ();
         if (windows.length () > 0) {
             windows.nth (0).data.present ();
@@ -149,7 +153,7 @@ public class CApp : Gtk.Application {
         //  Gtk.main ();
         //  return 0;
         
-        Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = true;
+        //  Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = true;
         unowned CApp app = get_instance ();
         return app.run (args);
     }

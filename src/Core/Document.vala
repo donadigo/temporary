@@ -57,7 +57,7 @@ public class Document : Object {
             image.allocate (width, height, 4);
             current.blit (1, roi, Formats.RGBA_u8, image.data, Gegl.AUTO_ROWSTRIDE, Gegl.BlitFlags.DEFAULT);
             Idle.add (() => {
-                display_mode = DisplayMode.GRAPH;
+                //  display_mode = DisplayMode.GRAPH;
                 repaint ();
                 return false;
             });

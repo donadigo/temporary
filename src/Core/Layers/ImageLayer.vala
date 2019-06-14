@@ -11,11 +11,12 @@ public class ImageLayer : Layer {
     Gegl.Node load;
 
     public ImageLayer (Document doc, File? file) {
-        Object (file: file);
+        Object (doc: doc, file: file);
         node = doc.graph.master.create_child ("gegl:layer");
     }
 
     construct {
+        populate_name ();
         image = new Image ();
 
         if (file != null) {
@@ -54,6 +55,10 @@ public class ImageLayer : Layer {
         );
 
         material.set_layer (0, texture);
+    }
+
+    void populate_name () {
+        name = file.get_basename ();
     }
 
     public async void load_file (File file) {
@@ -99,4 +104,29 @@ public class ImageLayer : Layer {
 
         return over;
     }
+
+    public override async Gdk.Pixbuf create_pixbuf (int width, int height) {
+        if (texture == null) {
+            return new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, width, height);
+        }
+
+        float w, h;
+        calculate_aspect_ratio_size_fit (bounding_box.width, bounding_box.height, width, height, out w, out h);
+
+        var image = new Gdk.Pixbuf.from_data (image.data, Gdk.Colorspace.RGB, true, 8, bounding_box.width, bounding_box.height, bounding_box.width * 4);
+        yield AsyncJob.queue (JobType.SCALE_PIXBUF, QueueFlags.NONE, (job) => {
+            image = image.scale_simple ((int)w, (int)h, Gdk.InterpType.BILINEAR);
+            return null;
+        });
+
+        return image;
+    }
+
+    // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/
+	static void calculate_aspect_ratio_size_fit (float src_width, float src_height, float max_width, float max_height,
+		out float width, out float height) {
+		float ratio = float.min (max_width / src_width, max_height / src_height);
+		width = src_width * ratio;
+		height = src_height * ratio;
+    }    
 }

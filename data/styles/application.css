@@ -1,0 +1,120 @@
+.handle {
+    background-image:
+        linear-gradient(
+            to bottom,
+            shade (
+                @colorPrimary,
+                1.04
+            ),
+            shade (
+                @colorPrimary,
+                0.94
+            )
+    );
+}
+
+/* initial status */
+.layer {
+    /* transition: all 80ms ease; */
+}
+
+.layer:selected image,
+.layer:selected button {
+    background-color: transparent;
+    color: #fff;
+}
+
+/* zebra */
+.layer.even,
+.layer.even:focus {
+    background-color: shade (@bg_color, 1);
+}
+
+.layer.even:selected {
+    background-color: @colorAccent;
+    color: @fg_color;
+    
+}
+/* label */
+.layer label {
+    color: @fg_color;
+    padding: 8px 0;
+}
+
+.layer:selected label {
+    color: #fff;
+}
+
+/* actions */
+.layer-action {
+    border: none;
+    background: transparent;
+    padding: 2px;
+    opacity: 0;
+    box-shadow: none;
+}
+
+.layer.hover > grid > .layer-action,
+.layer.hover > grid > grid > .layer-action {
+    opacity: 0.5;
+}
+
+.layer.hover > grid > .layer-action:hover,
+.layer-action:hover {
+    opacity: 1;
+}
+
+.layer-action.show {
+    opacity: 0.5;
+}
+
+.layer-action image,
+.layer-action {
+    color: @fg_color;
+}
+
+/* revealer */
+.layer .revealer-button {
+    border-bottom: none;
+}
+
+.revealer-button {
+    padding: 0 8px;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    border-bottom: 1px solid shade (@bg_color, 0.8);
+}
+
+.revealer-button image {
+    /* transition: all 160ms ease-in-out; */
+}
+
+.revealer-button.closed image {
+    -gtk-icon-transform: rotate(-90deg);
+}
+
+/* drag and drop */
+.layer.highlight > grid > grid {
+    box-shadow: inset 0 0 0 2px @primary;
+}
+
+/* group */
+.group-container {
+    background-color: @bg_color;
+}
+
+.group-container .layer {
+    padding-left: 15px;
+}
+
+.indicator {
+    background-color: @primary;
+    border-radius: 0 2px 2px 0;
+}
+
+.indicator-circle {
+    border-radius: 50%;
+    background-color: @primary;
+}

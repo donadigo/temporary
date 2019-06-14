@@ -22,6 +22,10 @@ public class LayerStack : Object {
         added (layer);
     }
 
+    public string create_name_for_layer (Layer layer) {
+        return "Layer %u".printf (get_unrolled ().size + 1);
+    }
+
     public int get_index (Layer layer) {
         for (int i = 0; i < items.size; i++) {
             if (items[i] == layer) {

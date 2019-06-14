@@ -8,7 +8,8 @@ conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 config_h_dir = include_directories('.')
 
 add_project_arguments([
-    '--vapidir=' + join_paths(meson.source_root(), 'vapi')], '--pkg', 'cogl-fixes',
+    '--vapidir=' + join_paths(meson.source_root(), 'vapi')], '--pkg', 'cogl-fixes', '--pkg=cogl-2.0',
+    '-X', '-DCOGL_ENABLE_EXPERIMENTAL_2_0_API', '-X', '$(pkg-config --libs --cflags cogl-2.0-experimental | sed \'s/ -/ -X -/g\')\'',
     language: 'vala'
 )
 
@@ -34,9 +35,16 @@ executable(
     'src/Widgets/CanvasView.vala',
     'src/Widgets/HeaderMenuButton.vala',
     'src/Widgets/NotebookView.vala',
-    'src/Widgets/ToolDockWidget.vala',
     'src/Widgets/WorkspaceTab.vala',
     'src/Widgets/ToolButton.vala',
+    'src/Widgets/LayerListBox.vala',
+    'src/Widgets/LayerRow.vala',
+    'src/Widgets/Docks/DockWidget.vala',
+    'src/Widgets/Docks/DockWindow.vala',
+    'src/Widgets/Docks/DockHandle.vala',
+    'src/Widgets/Docks/DockContainer.vala',
+    'src/Widgets/Docks/ToolDockWidget.vala',
+    'src/Widgets/Docks/LayerDockWidget.vala',
     'src/Core/Document.vala',
     'src/Core/Types.vala',
     'src/Core/AsyncJob.vala',
@@ -65,6 +73,7 @@ executable(
     'src/NewDocumentDialog.vala',
     gegl_fixes_files,
     icons_gresource,
+    css_gresource,
     dependencies: [
         dependency('glib-2.0'),
         dependency('gee-0.8'),

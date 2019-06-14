@@ -1,7 +1,9 @@
 
 public abstract class Layer : Object, LayerStackItem {
-    public bool visible { get; set; }
-    public string name { get; set; }
+    public unowned Document doc { get; construct; }
+    public bool visible { get; set; default = true; }
+    public bool locked { get; set; default = false; }
+    public string name { get; set; default = _("Layer"); }
     public float opacity { get; set; default = 1.0f; }
     public BlendingMode blending_mode { get; set; default = BlendingMode.NORMAL; }
 
@@ -39,6 +41,7 @@ public abstract class Layer : Object, LayerStackItem {
     }
 
     public abstract Gegl.Node process (Gegl.Node graph, Gegl.Node source);
+    public abstract async Gdk.Pixbuf create_pixbuf (int width, int height);
 
     public virtual void update () {
 
