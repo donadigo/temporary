@@ -1,7 +1,7 @@
 
 
 
-public class CDockWindow : Gtk.Window {
+public class CDockWindow : GlobalWindow {
     /**
      * Unfortunately Gtk does not provide a way to check
      * if moving a window is finished by the user.
@@ -19,7 +19,7 @@ public class CDockWindow : Gtk.Window {
     }
 
     const uint HOVER_TIMEOUT = 200;
-    uint hover_timeout_id = 0U;
+    //  uint hover_timeout_id = 0U;
     MoveStage move_stage = MoveStage.MOVE;
     bool escaped_source_dock = false;
 
@@ -92,18 +92,22 @@ public class CDockWindow : Gtk.Window {
         return base.configure_event (event);
     }
 
+    //  static inline bool rect_contains (Gdk.Rectangle rect, int x, int y) {
+    //      return x >= rect.x && x <= rect.x + rect.width
+    //          && y >= rect.y && y <= rect.y + rect.height;
+    //  }
+
     bool on_button_press_event (Gdk.EventButton event) {
         if (event.button == Gdk.BUTTON_PRIMARY && event.get_window () == get_titlebar ().get_window ()) {
             move_stage = MoveStage.GRAB;
             return true;
         }
 
-        return false;
+        return base.button_press_event (event);
     }
 
     bool on_enter_notify_event (Gdk.EventCrossing event) {
-        if (move_stage == MoveStage.MOVE && escaped_source_dock) {
-            print ("DROP\n");
+        if (event.get_window () != get_titlebar ().get_window () && move_stage == MoveStage.MOVE && escaped_source_dock) {
             on_drop ();
             return true;
         }
@@ -119,17 +123,17 @@ public class CDockWindow : Gtk.Window {
         }
     }
 
-    void on_hover (DockContainer container) {
-        //  if (hover_timeout_id != 0U) {
-        //      Source.remove (hover_timeout_id);
-        //      hover_timeout_id = 0U;
-        //  }
+    //  void on_hover (DockContainer container) {
+    //      if (hover_timeout_id != 0U) {
+    //          Source.remove (hover_timeout_id);
+    //          hover_timeout_id = 0U;
+    //      }
 
-        //  hover_timeout_id = Timeout.add (HOVER_TIMEOUT, () => {
-        //      hover_timeout_id = 0U;
-        //      container.add_widget (create_dock_widget ());
-        //      destroy ();
-        //      return false;
-        //  });
-    }
+    //      hover_timeout_id = Timeout.add (HOVER_TIMEOUT, () => {
+    //          hover_timeout_id = 0U;
+    //          container.add_widget (create_dock_widget ());
+    //          destroy ();
+    //          return false;
+    //      });
+    //  }
 }

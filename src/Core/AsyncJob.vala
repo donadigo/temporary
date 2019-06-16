@@ -12,7 +12,7 @@ public enum JobType {
 
 public class AsyncJob : Object {
     public class Job {
-        public AsyncJob.JobCallback callback;
+        public unowned AsyncJob.JobCallback callback;
         public int type;
         public int id;
         public bool cancelled;
@@ -24,6 +24,7 @@ public class AsyncJob : Object {
 
     private Thread worker_thread;
     private Gee.LinkedList<Job?> jobs;
+    private bool running = true;
 
     private int current_id = 0;
 
@@ -46,8 +47,12 @@ public class AsyncJob : Object {
         current_id = 0;
     }
 
+    ~AsyncJob () {
+        running = false;
+    }
+
     private void* worker_func () {
-        while (true) {
+        while (running) {
             if (jobs.size == 0) {
                 Thread.@yield ();
                 continue;

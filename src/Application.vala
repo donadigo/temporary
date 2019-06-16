@@ -29,6 +29,7 @@ public class CApp : Gtk.Application {
         GtkClutter.init (ref args);
         Gegl.init (ref args);
         Formats.init ();
+        GlobalKeyState.init ();
         
         //  Gegl.config ().threads = 4;
         //  Gegl.config ().use_opencl = true;

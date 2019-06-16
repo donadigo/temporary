@@ -43,14 +43,14 @@ public class WorkspaceView : Dazzle.DockBin {
         cv.set_position (stage.get_width () / 2 - canvas_width / 2, stage.get_height () / 2 - canvas_height / 2);
     }
 
-    void update_children_scale () {
-        float w, h;
-        calculate_aspect_ratio_size_fit (doc.width, doc.height, stage.width, stage.height, out w, out h);
+    //  void update_children_scale () {
+    //      float w, h;
+    //      calculate_aspect_ratio_size_fit (doc.width, doc.height, stage.width, stage.height, out w, out h);
 
-        foreach (var child in cv.get_children ()) {
-            child.set_scale (w * doc.scale / (float)doc.width, h * doc.scale / (float)doc.height);
-        }
-    }
+    //      foreach (var child in cv.get_children ()) {
+    //          child.set_scale (w * doc.scale / (float)doc.width, h * doc.scale / (float)doc.height);
+    //      }
+    //  }
 
     // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/
     static void calculate_aspect_ratio_size_fit (float src_width, float src_height, float max_width, float max_height,

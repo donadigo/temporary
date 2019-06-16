@@ -2,7 +2,7 @@
 
 public class DockHandle : Gtk.EventBox {
     public signal void detached (Gdk.EventMotion event);
-    public Gdk.Point relative_start { get; set; }
+    public Gdk.Point relative_start;
 
     bool dragging = false;
     Gdk.Point start;

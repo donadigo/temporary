@@ -30,9 +30,11 @@ public class CanvasView : Clutter.Actor {
         });
 
         doc.repaint.connect (queue_redraw);
+
+        EventBus.subscribe (EventType.SELECT_LAYERS, on_layers_selected);
     }
 
-    
+
     public void update_size (float w, float h) {
         float pw, ph;
         pipeline.get_size (out pw, out ph);
@@ -112,5 +114,8 @@ public class CanvasView : Clutter.Actor {
         var actor = new LayerActor (doc, layer, pipeline);
         layer.repaint.connect (() => queue_redraw ());
         add_child (actor);
+    }
+
+    void on_layers_selected (Event<SelectLayersEventData?> event) {
     }
 }

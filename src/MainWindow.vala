@@ -1,7 +1,5 @@
-public class CMainWindow : Gtk.ApplicationWindow {
-
+public class CMainWindow : GlobalWindow {
     CHeaderBar header_bar;
-
 
     public CMainWindow (Gtk.Application app) {
         Object (application: app);

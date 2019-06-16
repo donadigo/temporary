@@ -1,5 +1,5 @@
 public class Image : Object {
-    public uint8[] data { get; set; }
+    public uint8[] data;
 
     public Image () {
 

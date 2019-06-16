@@ -4,11 +4,11 @@
             to bottom,
             shade (
                 @colorPrimary,
-                1.04
+                0.8
             ),
             shade (
                 @colorPrimary,
-                0.94
+                0.7
             )
     );
 }
@@ -16,6 +16,10 @@
 /* initial status */
 .layer {
     /* transition: all 80ms ease; */
+}
+
+.layer:selected {
+    background-color: @colorAccent;
 }
 
 .layer:selected image,

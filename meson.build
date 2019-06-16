@@ -27,6 +27,7 @@ gegl_fixes_files = files(
 executable(
     meson.project_name(),
     'src/Application.vala',
+    'src/GlobalWindow.vala',
     'src/MainWindow.vala',
     'src/LayerActor.vala',
     'src/Widgets/HeaderBar.vala',
@@ -45,6 +46,9 @@ executable(
     'src/Widgets/Docks/DockContainer.vala',
     'src/Widgets/Docks/ToolDockWidget.vala',
     'src/Widgets/Docks/LayerDockWidget.vala',
+    'src/Core/GlobalKeyState.vala',
+    'src/Core/EventBus.vala',
+    'src/Core/Events.vala',
     'src/Core/Document.vala',
     'src/Core/Types.vala',
     'src/Core/AsyncJob.vala',
