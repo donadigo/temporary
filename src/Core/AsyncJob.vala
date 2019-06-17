@@ -1,16 +1,16 @@
 [Flags]
-public enum QueueFlags {
+public enum Core.QueueFlags {
     NONE = 0,
     CANCEL_ALL
 }
 
-public enum JobType {
+public enum Core.JobType {
     LOAD_FILE,
     PROCESS_GRAPH,
     SCALE_PIXBUF
 }
 
-public class AsyncJob : Object {
+public class Core.AsyncJob : Object {
     public class Job {
         public unowned AsyncJob.JobCallback callback;
         public int type;

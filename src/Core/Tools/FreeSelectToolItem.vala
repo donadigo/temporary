@@ -1,7 +1,7 @@
 
 
 
-public class FreeSelectToolItem : ToolItem {
+public class Core.FreeSelectToolItem : ToolItem {
     public override string name {
         get {
             return _("Free selection");

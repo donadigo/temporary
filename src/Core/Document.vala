@@ -1,9 +1,9 @@
-public enum DisplayMode {
+public enum Core.DisplayMode {
     ACTOR,
     GRAPH
 }
 
-public class Document : Object {
+public class Core.Document : Object {
     public string? filename { get; set; }
     public LayerStack layer_stack { get; construct; }
     public ImageGraph graph { get; construct; }

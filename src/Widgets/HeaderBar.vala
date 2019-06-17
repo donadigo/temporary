@@ -1,6 +1,6 @@
 
 
-public class CHeaderBar : Gtk.HeaderBar {
+public class Widgets.CHeaderBar : Gtk.HeaderBar {
     Gtk.SearchEntry search_entry;
     Gtk.Button newdoc_btn;
 

@@ -1,6 +1,6 @@
 
 
-public class HeaderMenuButton : Gtk.MenuButton {
+public class Widgets.HeaderMenuButton : Gtk.MenuButton {
     Gtk.Menu menu;
 
     public HeaderMenuButton (string icon_name, Gtk.IconSize icon_sz) {

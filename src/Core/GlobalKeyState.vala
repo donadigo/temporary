@@ -1,5 +1,5 @@
 
-public class GlobalKeyState {
+public class Core.GlobalKeyState {
     private static Gee.LinkedList<uint> pressed;
     public static void init () {
         pressed = new Gee.LinkedList<uint> ();

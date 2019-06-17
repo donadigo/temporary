@@ -1,5 +1,5 @@
 
 
-public class EffectBackend : Object {
+public class Core.EffectBackend : Object {
     
 }

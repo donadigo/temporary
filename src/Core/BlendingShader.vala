@@ -1,4 +1,4 @@
-public enum BlendingMode {
+public enum Core.BlendingMode {
     NORMAL = 0,
     MULTIPLY = 1,
     SCREEN = 2,
@@ -23,7 +23,7 @@ public enum BlendingMode {
     }
 }
 
-public class BlendingShader : Object {
+public class Core.BlendingShader : Object {
     // https://github.com/jamieowen/glsl-blend
     const string FRAGMENT_SOURCE = """
         uniform sampler2D tex0;

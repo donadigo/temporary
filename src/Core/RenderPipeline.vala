@@ -1,7 +1,7 @@
 
 
 
-public class RenderPipeline : Object {
+public class Core.RenderPipeline : Object {
     Cogl.Offscreen a_fbo;
     Cogl.Texture a;
 

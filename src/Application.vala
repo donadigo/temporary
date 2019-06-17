@@ -21,15 +21,15 @@ public class CApp : Gtk.Application {
             return;
         }
 
-        var window = new CMainWindow (this);
+        var window = new Widgets.CMainWindow (this);
         window.show_all ();
     }
 
     public static int main (string[] args) {
         GtkClutter.init (ref args);
         Gegl.init (ref args);
-        Formats.init ();
-        GlobalKeyState.init ();
+        Core.Formats.init ();
+        Core.GlobalKeyState.init ();
         
         //  Gegl.config ().threads = 4;
         //  Gegl.config ().use_opencl = true;

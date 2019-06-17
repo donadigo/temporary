@@ -1,7 +1,7 @@
 
 
 
-public class RectangleSelectToolItem : ToolItem {
+public class Core.RectangleSelectToolItem : ToolItem {
     public override string name {
         get {
             return _("Rectangular selection");

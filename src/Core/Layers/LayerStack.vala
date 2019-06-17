@@ -2,24 +2,30 @@
 
 
 
-public class LayerStack : Object {
+public class Core.LayerStack : Object {
     public Gee.LinkedList<LayerStackItem> items { get; construct; }
 
     public signal void added (Layer layer);
     public signal void removed (Layer layer);
+    public signal void selection_changed ();
 
     public Layer? dirty { get; private set; }
-    public unowned Gee.LinkedList<LayerStackItem>? active { get; set; }
+    public Gee.LinkedList<unowned LayerStackItem> selected { get; private set; }
 
     construct {
         items = new Gee.LinkedList<LayerStackItem> ();
-        active = new Gee.LinkedList<LayerStackItem> ();
+        selected = new Gee.LinkedList<unowned LayerStackItem> ();
     }
 
     public void append (Layer layer) {
         items.add (layer);
         layer.notify["dirty"].connect (() => on_layer_dirty_changed ());
         added (layer);
+    }
+
+    public void set_selection (Gee.LinkedList<unowned LayerStackItem> selection) {
+        selected = selection;
+        selection_changed ();
     }
 
     public string create_name_for_layer (Layer layer) {

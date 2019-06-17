@@ -1,6 +1,6 @@
 
 
-public class DockHandle : Gtk.EventBox {
+public class Widgets.DockHandle : Gtk.EventBox {
     public signal void detached (Gdk.EventMotion event);
     public Gdk.Point relative_start;
 

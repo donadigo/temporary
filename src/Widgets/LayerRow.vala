@@ -17,7 +17,9 @@
 * Authored by: Alessandro "Alecaddd" Castellani <castellani.ale@gmail.com>
 */
 
-public class LayerRow : Gtk.ListBoxRow {
+using Core;
+
+public class Widgets.LayerRow : Gtk.ListBoxRow {
     public unowned Layer layer { get; construct; }
 
     Gtk.Image icon;

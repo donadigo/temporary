@@ -1,4 +1,4 @@
-public class ToolCollection : Object {
+public class Core.ToolCollection : Object {
     public Gee.ArrayList<ToolItemGroup> groups { get; construct; }
 
     private static ToolCollection? instance;

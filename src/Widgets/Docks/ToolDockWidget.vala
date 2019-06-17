@@ -1,6 +1,8 @@
 
 
-public class ToolDockWidget : CDockWidget {
+using Core;
+
+public class Widgets.ToolDockWidget : CDockWidget {
 
     construct {
         can_close = true;

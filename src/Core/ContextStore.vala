@@ -1,6 +1,6 @@
 
 
-public class ContextStore {
+public class Core.ContextStore {
     private static Cogl2.Context? ctx;
 
     public static void init () {

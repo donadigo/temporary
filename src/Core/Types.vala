@@ -1,6 +1,6 @@
 
 
-public struct Rectangle<T> {
+public struct Core.Rectangle<T> {
     T x;
     T y;
     T width;

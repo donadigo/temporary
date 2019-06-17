@@ -1,7 +1,7 @@
 
 
 
-public class MoveToolItem : ToolItem {
+public class Core.MoveToolItem : ToolItem {
     public override string name {
         get {
             return _("Move");

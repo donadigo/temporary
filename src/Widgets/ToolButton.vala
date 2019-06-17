@@ -1,4 +1,6 @@
-public class CToolButton : Gtk.ToggleToolButton {
+using Core;
+
+public class Widgets.CToolButton : Gtk.ToggleToolButton {
 
     public CToolButton (ToolItemGroup group) {
         var item = group[0];

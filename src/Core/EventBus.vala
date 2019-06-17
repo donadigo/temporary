@@ -1,5 +1,5 @@
 
-public class EventBus : Object {
+public class Core.EventBus : Object {
     struct Subscriber {
         EventType flags;
         unowned ReceiveCallback callback;

@@ -1,7 +1,7 @@
 
 
 
-public class Formats {
+public class Core.Formats {
     public static void* RGBA_u8;
 
     public static void init () {

@@ -17,11 +17,10 @@
 * Authored by: Alessandro "Alecaddd" Castellani <castellani.ale@gmail.com>
 */
 
-public class LayerListBox : Gtk.ListBox {
-    public unowned Document doc { get; construct; }
+using Core;
 
-    //  unowned LayerRow? prev_selected;
-    //  bool selection_locked = false;
+public class Widgets.LayerListBox : Gtk.ListBox {
+    public unowned Document doc { get; construct; }
 
     public LayerListBox (Document doc) {
         Object (doc: doc);
@@ -32,9 +31,6 @@ public class LayerListBox : Gtk.ListBox {
         doc.layer_stack.added.connect (on_layer_stack_added);
 
         get_style_context ().add_class ("layers-panel");
-
-        //  row_selected.connect (on_row_selected);
-        selected_rows_changed.connect (on_selected_rows_changed);
     }
 
     void on_layer_stack_added (Layer layer) {
@@ -45,9 +41,6 @@ public class LayerListBox : Gtk.ListBox {
             update_zebra ();
             return false;
         });
-    }
-
-    void on_selected_rows_changed () {
     }
 
     bool on_row_button_press_event (Gtk.Widget row_widget, Gdk.EventButton event) {
@@ -96,8 +89,7 @@ public class LayerListBox : Gtk.ListBox {
         var items = new Gee.LinkedList<unowned LayerStackItem> ();
         items.add (layer_row.layer);
 
-        var data = SelectLayersEventData () { items = items };
-        EventBus.post<SelectLayersEventData?> (EventType.SELECT_LAYERS, data);
+        doc.layer_stack.set_selection (items);
     }
 
     void select_rows_post (int start, int end) {
@@ -109,48 +101,8 @@ public class LayerListBox : Gtk.ListBox {
             select_row (row);
         }
 
-        var data = SelectLayersEventData () { items = items };
-        EventBus.post<SelectLayersEventData?> (EventType.SELECT_LAYERS, data);
+        doc.layer_stack.set_selection (items);
     }
-
-    //  void on_row_selected (Gtk.ListBoxRow? row) {
-    //      return;
-    //      if (selection_locked) {
-    //          return;
-    //      }
-
-    //      var layer_row = row as LayerRow;
-    //      if (layer_row == null) {
-    //          return;
-    //      }
-
-    //      print ("SELECTED\n");
-    //      if (prev_selected != null && (GlobalKeyState.is_pressed (Gdk.Key.Shift_L) || GlobalKeyState.is_pressed (Gdk.Key.Shift_R))) {
-    //          selection_mode = Gtk.SelectionMode.MULTIPLE;
-    //          int start_index = prev_selected.get_index ();
-    //          int end_index = layer_row.get_index ();
-
-    //          start_index = int.min (start_index, end_index);
-    //          end_index = int.max (start_index, end_index);
-    //          print ("%i %i\n", start_index, end_index);
-
-    //          selection_locked = true;
-    //          for (int i = start_index; i < end_index; i++) {
-    //              select_row (get_row_at_index (i));
-    //          }
-
-    //          selection_locked = false;
-    //      } else {
-    //          //  unselect_all ();
-    //          selection_mode = Gtk.SelectionMode.SINGLE;
-    //          select_row (row);
-    //      }
-
-    //      prev_selected = layer_row;
-    //  }
-
-    //  void on_row_activate (LayerRow row) {
-    //  }
 
     void update_zebra () {
         bool even = true;

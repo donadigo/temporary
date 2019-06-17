@@ -1,6 +1,8 @@
 
 
-public class WorkspaceView : Dazzle.DockBin {
+using Core;
+
+public class Widgets.WorkspaceView : Dazzle.DockBin {
     public Document doc { get; construct; }
     CanvasView cv;
     Clutter.Stage stage;

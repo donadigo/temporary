@@ -1,5 +1,5 @@
 
-public abstract class Layer : Object, LayerStackItem {
+public abstract class Core.Layer : Object, LayerStackItem {
     public unowned Document doc { get; construct; }
     public bool visible { get; set; default = true; }
     public bool locked { get; set; default = false; }
@@ -23,6 +23,11 @@ public abstract class Layer : Object, LayerStackItem {
         screen_material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         screen_material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         CoglFixes.set_user_program (screen_material, BlendingShader.get_default ().program);
+    }
+
+    construct {
+        notify["opacity"].connect (() => repaint ());
+        notify["blending-mode"].connect (() => repaint ());
     }
 
     public virtual void paint_content (Document document, LayerActor actor) {

@@ -1,7 +1,7 @@
 
 
 
-public class CDockWindow : GlobalWindow {
+public class Widgets.CDockWindow : GlobalWindow {
     /**
      * Unfortunately Gtk does not provide a way to check
      * if moving a window is finished by the user.

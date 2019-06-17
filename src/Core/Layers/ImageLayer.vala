@@ -1,6 +1,6 @@
 
 
-public class ImageLayer : Layer {
+public class Core.ImageLayer : Layer {
     public Image image { get; construct; }
     public File? file { get; construct; }
 

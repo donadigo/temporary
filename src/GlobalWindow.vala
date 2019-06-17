@@ -1,5 +1,7 @@
 
 
+using Core;
+
 public class GlobalWindow : Gtk.Window {
     public override bool key_press_event (Gdk.EventKey event) {
         GlobalKeyState.mark_pressed (event.keyval);

@@ -1,9 +1,9 @@
 
 
 public class LayerActor : Clutter.Actor {
-    public Document doc { get; construct; }
-    public Layer layer { get; construct; }
-    public unowned RenderPipeline pipeline { get; construct; }
+    public Core.Document doc { get; construct; }
+    public Core.Layer layer { get; construct; }
+    public unowned Core.RenderPipeline pipeline { get; construct; }
 
     bool dragging = false;
     float drag_x = 0;
@@ -11,7 +11,7 @@ public class LayerActor : Clutter.Actor {
 
     Gegl.Rectangle start_box;
 
-    public LayerActor (Document doc, Layer layer, RenderPipeline pipeline) {
+    public LayerActor (Core.Document doc, Core.Layer layer, Core.RenderPipeline pipeline) {
         Object (doc: doc, layer: layer, pipeline: pipeline);
     }
 

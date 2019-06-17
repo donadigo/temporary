@@ -1,7 +1,9 @@
 
 
 
-public class MainView : Gtk.Grid {
+using Core;
+
+public class Widgets.MainView : Gtk.Grid {
     NotebookView notebook_view;
 
     construct {

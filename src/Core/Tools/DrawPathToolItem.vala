@@ -1,7 +1,7 @@
 
 
 
-public class DrawPathToolItem : ToolItem {
+public class Core.DrawPathToolItem : ToolItem {
     public override string name {
         get {
             return _("Draw a path");

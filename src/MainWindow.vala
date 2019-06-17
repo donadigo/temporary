@@ -1,4 +1,4 @@
-public class CMainWindow : GlobalWindow {
+public class Widgets.CMainWindow : GlobalWindow {
     CHeaderBar header_bar;
 
     public CMainWindow (Gtk.Application app) {

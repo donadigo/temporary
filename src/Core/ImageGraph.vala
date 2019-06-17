@@ -1,6 +1,6 @@
 
 
-public class ImageGraph : Object {
+public class Core.ImageGraph : Object {
     public unowned Document document { get; construct; }
     public Gegl.Node master { get; construct; }
 

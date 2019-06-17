@@ -1,6 +1,6 @@
 
 
-public class CDockWidget : Dazzle.DockWidget {
+public class Widgets.CDockWidget : Dazzle.DockWidget {
     internal Gtk.Box box;
     DockHandle handle;
     

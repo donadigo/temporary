@@ -1,6 +1,8 @@
 
 
-public class WorkspaceTab : Granite.Widgets.Tab {
+using Core;
+
+public class Widgets.WorkspaceTab : Granite.Widgets.Tab {
     WorkspaceView ws_view;
     public Document doc { get; construct; }
  

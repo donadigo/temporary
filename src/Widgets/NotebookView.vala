@@ -1,6 +1,6 @@
 
 
-public class NotebookView : Granite.Widgets.DynamicNotebook {
+public class Widgets.NotebookView : Granite.Widgets.DynamicNotebook {
 
     construct {
         show_tabs = true;

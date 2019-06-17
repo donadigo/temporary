@@ -1,4 +1,4 @@
-public class Image : Object {
+public class Core.Image : Object {
     public uint8[] data;
 
     public Image () {

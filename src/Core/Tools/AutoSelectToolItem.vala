@@ -1,7 +1,7 @@
 
 
 
-public class AutoSelectToolItem : ToolItem {
+public class Core.AutoSelectToolItem : ToolItem {
     public override string name {
         get {
             return _("Magic wand");

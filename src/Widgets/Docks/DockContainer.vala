@@ -1,7 +1,7 @@
 
 
 
-public class DockContainer : Gtk.EventBox {
+public class Widgets.DockContainer : Gtk.EventBox {
     private static Gee.LinkedList<DockContainer> containers;
     public static unowned Gee.LinkedList<DockContainer> get_all () {
         init ();

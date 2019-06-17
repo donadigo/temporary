@@ -1,5 +1,7 @@
 
-public class CanvasView : Clutter.Actor {
+using Core;
+
+public class Widgets.CanvasView : Clutter.Actor {
     public Document doc { get; construct; }
 
     RenderPipeline pipeline;
@@ -30,8 +32,7 @@ public class CanvasView : Clutter.Actor {
         });
 
         doc.repaint.connect (queue_redraw);
-
-        EventBus.subscribe (EventType.SELECT_LAYERS, on_layers_selected);
+        doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
     }
 
 
@@ -116,6 +117,7 @@ public class CanvasView : Clutter.Actor {
         add_child (actor);
     }
 
-    void on_layers_selected (Event<SelectLayersEventData?> event) {
+    void on_layer_stack_selection_changed () {
+
     }
 }
