@@ -16,26 +16,26 @@ public class Core.RectangleSelectToolItem : ToolItem {
 
     public override void activate () {}
     public override void deactivate () {
-        EventBusUtils.change_cursor ("default");
+        EventBus.get_default ().change_cursor ("default");
     }
 
 
-    public override void handle_event (Event<CanvasEventEventData?> event, Gee.LinkedList<unowned LayerStackItem> selected) {
-        switch (event.data.event.type) {
+    public override void handle_event (Widgets.CanvasView canvas_view, Clutter.Event event, Gee.LinkedList<unowned LayerStackItem> selected) {
+        switch (event.type) {
             case ENTER:
-                handle_enter (event.data.canvas_view, (Clutter.CrossingEvent)event.data.event, selected);
+                handle_enter (canvas_view, (Clutter.CrossingEvent)event, selected);
                 break;
             case LEAVE:
-                handle_leave (event.data.canvas_view, (Clutter.CrossingEvent)event.data.event, selected);
+                handle_leave (canvas_view, (Clutter.CrossingEvent)event, selected);
                 break;
         }
     }
 
     void handle_enter (Widgets.CanvasView cv, Clutter.CrossingEvent event, Gee.LinkedList<unowned LayerStackItem> selected) {
-        EventBusUtils.change_cursor ("cell");
+        EventBus.get_default ().change_cursor ("cell");
     }
 
     void handle_leave (Widgets.CanvasView cv, Clutter.CrossingEvent event, Gee.LinkedList<unowned LayerStackItem> selected) {
-        EventBusUtils.change_cursor ("default");
+        EventBus.get_default ().change_cursor ("default");
     }
 }

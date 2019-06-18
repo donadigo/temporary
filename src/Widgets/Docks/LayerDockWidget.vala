@@ -3,7 +3,7 @@
 using Core;
 
 public class Widgets.LayerDockWidget : CDockWidget {
-    public unowned Document doc { get; construct; }
+    unowned Document? current_doc = null;
 
     Gtk.ComboBoxText blend_combo;
     Gtk.Scale op_scale;
@@ -11,11 +11,11 @@ public class Widgets.LayerDockWidget : CDockWidget {
     ulong blend_combo_changed_id;
     ulong op_scale_changed_id;
 
-    public LayerDockWidget (Document doc) {
-        Object (doc: doc);
-    }
+    Gtk.Stack list_box_stack;
 
     construct {
+        list_box_stack = new Gtk.Stack ();
+
         blend_combo = new Gtk.ComboBoxText ();
         blend_combo_changed_id = blend_combo.changed.connect (on_blend_combo_changed);
         blend_combo.hexpand = true;
@@ -59,20 +59,34 @@ public class Widgets.LayerDockWidget : CDockWidget {
         box.add (search_entry);
         box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
         
-        var list_box = new LayerListBox (doc);
-        list_box.expand = true;
-
         var scrolled = new Gtk.ScrolledWindow (null, null);
-        scrolled.add (list_box);
+        scrolled.add (list_box_stack);
         box.add (scrolled);
 
-        doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
+        EventBus.get_default ().current_document_changed.connect (on_document_changed);
+    }
+
+    void on_document_changed (Document? doc) {
+        if (current_doc != null) {
+            current_doc.layer_stack.selection_changed.disconnect (on_layer_stack_selection_changed);
+        }
+
+        current_doc = doc;
+        if (current_doc != null) {
+            current_doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
+
+            // TODO: find an existing list box 
+            var list_box = new LayerListBox (current_doc);
+            list_box_stack.add_named (list_box, current_doc.id.to_string ());
+        }
     }
 
     void on_layer_stack_selection_changed () {
+        if (current_doc == null) return;
+
         float opacity;
         BlendingMode mode;
-        doc.layer_stack.get_best_display_settings (out opacity, out mode);
+        current_doc.layer_stack.get_best_display_settings (out opacity, out mode);
 
         SignalHandler.block (op_scale, op_scale_changed_id);
         SignalHandler.block (blend_combo, blend_combo_changed_id);
@@ -85,7 +99,9 @@ public class Widgets.LayerDockWidget : CDockWidget {
     }
 
     void on_op_scale_value_changed () {
-        foreach (unowned LayerStackItem item in doc.layer_stack.selected) {
+        if (current_doc == null) return;
+
+        foreach (unowned LayerStackItem item in current_doc.layer_stack.selected) {
             item.opacity = (float)op_scale.get_value ();
         }
     }
@@ -115,21 +131,25 @@ public class Widgets.LayerDockWidget : CDockWidget {
         mark_selected (true);
         
         var mode = (BlendingMode)int.parse (active_id);
-        foreach (unowned LayerStackItem item in doc.layer_stack.selected) {
+        foreach (unowned LayerStackItem item in current_doc.layer_stack.selected) {
             item.blending_mode = mode;
         }        
 
         mark_selected (false);
+        EventBus.get_default ().force_redraw_canvas (current_doc);
     }
 
     void mark_selected (bool dirty) {
-        foreach (unowned LayerStackItem item in doc.layer_stack.selected) {
+        if (current_doc == null) return;
+
+        foreach (unowned LayerStackItem item in current_doc.layer_stack.selected) {
             if (item is Layer) {
                 ((Layer)item).dirty = dirty;
             }
         }   
 
-        doc.layer_stack.update_dirty ();
+        current_doc.layer_stack.update_dirty ();
+        EventBus.get_default ().force_redraw_canvas (current_doc);
     }
 
     void on_op_label_step (int step) {

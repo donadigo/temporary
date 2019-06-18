@@ -49,12 +49,7 @@ public class Widgets.CanvasView : Clutter.Actor {
     }
 
     public override bool event (Clutter.Event event) {
-        var data = CanvasEventEventData () {
-            canvas_view = this,
-            event = event
-        };
-
-        EventBus.post<CanvasEventEventData?> (EventType.CANVAS_EVENT, data);
+        EventBus.get_default ().canvas_event (this, event);
         return false;
     }
 

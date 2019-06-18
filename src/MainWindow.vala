@@ -30,37 +30,41 @@ public class Widgets.CMainWindow : GlobalWindow {
         add (main_view);
         show_all ();
 
-        EventBus.subscribe (EventType.CHANGE_CURSOR, on_change_cursor);
-        EventBus.subscribe (EventType.DRAW_HIGHLIGHT, on_draw_highlight);
-        EventBus.subscribe (EventType.FREEZE_CURSOR_CHANGES, on_freeze_cursor_changes);
+        unowned EventBus event_bus = EventBus.get_default ();
+        event_bus.change_cursor.connect (on_change_cursor);
+        event_bus.draw_highlight.connect (on_draw_highlight);
+        event_bus.freeze_cursor_changes.connect (on_freeze_cursor_changes);
     }
 
-    void on_change_cursor (Event<ChangeCursorEventData?> event) {
+    void on_change_cursor (string name, Gdk.Window? window = null) {
         if (cursor_freezed) {
             return;
         }
 
-        var cursor = new Gdk.Cursor.from_name (Gdk.Display.get_default (), event.data.name);
-        unowned Gdk.Window window = event.data.window ?? get_window ();
-        window.set_cursor (cursor);        
+        var cursor = new Gdk.Cursor.from_name (Gdk.Display.get_default (), name);
+        var _window = window ?? get_window ();
+        _window.set_cursor (cursor);        
     }
 
-    void on_freeze_cursor_changes (Event<FreezeCursorChangesEventData?> event) {
-        cursor_freezed = event.data.freeze;
+    void on_freeze_cursor_changes (bool freeze) {
+        cursor_freezed = freeze;
     }
 
-    void on_draw_highlight (Event<DrawHighlightEventData?> event) {
-        if (highlight_allocate_cb != event.data.allocate_cb) {
+    void on_draw_highlight (DrawHighlightEventData data) {
+        if (highlight_allocate_cb != data.allocate_cb) {
             highlight_opacity = 0;
         }
 
-        highlight_allocate_cb = event.data.allocate_cb;
-        Timeout.add (5, () => {
-            highlight_opacity += HL_OPACITY_DELTA;
+        highlight_allocate_cb = data.allocate_cb;
+        if (highlight_allocate_cb == null) {
             queue_draw ();
-            return highlight_opacity < HIGHTLIGHT_MAX_OPACITY;
-        });
-
+        } else {
+            Timeout.add (5, () => {
+                highlight_opacity += HL_OPACITY_DELTA;
+                queue_draw ();
+                return highlight_opacity < HIGHTLIGHT_MAX_OPACITY;
+            });
+        }
     }
 
     public override bool draw (Cairo.Context cr) {

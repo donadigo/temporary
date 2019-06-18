@@ -5,20 +5,37 @@ using Core;
 
 public class Widgets.MainView : Gtk.Grid {
     NotebookView notebook_view;
+    ToolSettingsBar tool_settings_bar;
 
     construct {
         notebook_view = new NotebookView ();
+        tool_settings_bar = new ToolSettingsBar ();
+
+        var tool_widget = new ToolDockWidget ();
+
+        var left_container = new DockContainer ();
+        left_container.add_widget (tool_widget);
+
+        var layer_widget = new LayerDockWidget ();
+        var right_container = new DockContainer ();
+        right_container.add_widget (layer_widget);
+
+        var page_widget = new Dazzle.DockPaned ();
+        page_widget.orientation = Gtk.Orientation.HORIZONTAL;
 
         var tab = new WorkspaceTab ();
         notebook_view.insert_tab (tab, 0);
 
         var paned = new Dazzle.DockPaned ();
         paned.orientation = Gtk.Orientation.HORIZONTAL;
+        paned.add (left_container);
         paned.add (notebook_view);
+        paned.add (right_container);
 
         add_layers.begin (tab);
 
-        add (paned);
+        attach (tool_settings_bar, 0, 0, 1, 1);
+        attach (paned, 0, 1, 1, 1);
     }
 
     async void add_layers (WorkspaceTab tab) {

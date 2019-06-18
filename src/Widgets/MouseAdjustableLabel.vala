@@ -25,7 +25,7 @@ public class Widgets.MouseAdjustableLabel : Gtk.EventBox {
     }
 
     public override bool enter_notify_event (Gdk.EventCrossing event) {
-        EventBusUtils.change_cursor ("pointer");
+        EventBus.get_default ().change_cursor ("pointer");
         return true;
     }
 
@@ -41,7 +41,7 @@ public class Widgets.MouseAdjustableLabel : Gtk.EventBox {
     }
 
     public override bool leave_notify_event (Gdk.EventCrossing event) {
-        EventBusUtils.change_cursor ("default");
+        EventBus.get_default ().change_cursor ("default");
         return true;
     }
 
@@ -49,21 +49,14 @@ public class Widgets.MouseAdjustableLabel : Gtk.EventBox {
         prev_step = 0;
         start_pos = { (int)event.x, (int)event.y };
 
-        EventBusUtils.change_cursor ("col-resize");
-        var data = FreezeCursorChangesEventData () {
-            freeze = true
-        };
-
-        EventBus.post<FreezeCursorChangesEventData?> (EventType.FREEZE_CURSOR_CHANGES, data);
+        unowned EventBus event_bus = EventBus.get_default ();
+        event_bus.change_cursor ("col-resize");
+        event_bus.freeze_cursor_changes (true);
         return true;
     }
 
     public override bool button_release_event (Gdk.EventButton event) {
-        var data = FreezeCursorChangesEventData () {
-            freeze = false
-        };
-
-        EventBus.post<FreezeCursorChangesEventData?> (EventType.FREEZE_CURSOR_CHANGES, data);
+        EventBus.get_default ().freeze_cursor_changes (false);
         return true;
     }
 }

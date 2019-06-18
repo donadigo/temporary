@@ -29,7 +29,9 @@ public class Widgets.DockContainer : Gtk.EventBox {
         unowned Gdk.Window? window = get_window ();
 
         Gdk.Rectangle rect = {};
-        window.get_origin (out rect.x, out rect.y);
+        if (window != null) {
+            window.get_origin (out rect.x, out rect.y);
+        }
 
         Gtk.Allocation alloc;
         get_allocation (out alloc);

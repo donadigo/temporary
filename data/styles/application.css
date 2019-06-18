@@ -130,7 +130,25 @@
     -gtk-icon-shadow: none;
 }
 
+flowboxchild {
+	background-color:transparent;
+}
+
 .ctool-button button:active,
 .ctool-button button:checked {
-    background-color: alpha (@text_color, 0.1);
+    background-color: alpha (@text_color, 0.2);
+}
+
+.tool-settings-bar {
+	background-color: @titlebar_color;
+}
+
+.tool-settings-bar:backdrop {
+	background-color: shade (@titlebar_color, 1.1);
+}
+
+notebook tab {
+	padding-bottom: 0px;
+	padding-top: 0px;
+	margin-top: 1px;
 }

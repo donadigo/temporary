@@ -29,7 +29,8 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
         add (embed);
         on_allocation_changed ();
 
-        EventBus.subscribe (EventType.FOCUS_CANVAS, on_focus_canvas);
+        EventBus.get_default ().focus_canvas.connect (on_focus_canvas);
+        EventBus.get_default ().force_redraw_canvas.connect (on_force_redraw_canvas);
     }
 
     public WorkspaceView (Document doc) {
@@ -63,11 +64,17 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
     //      }
     //  }
 
-    void on_focus_canvas (Event<FocusCanvasEventData?> event) {
-        if (event.data.doc == doc) {
+    void on_focus_canvas (Document _doc) {
+        if (_doc == doc) {
             embed.grab_focus ();
             stage.set_key_focus (cv);
         }
+    }
+
+    void on_force_redraw_canvas (Document _doc) {
+        if (_doc == doc) {
+            cv.queue_redraw ();
+        }        
     }
 
     // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/

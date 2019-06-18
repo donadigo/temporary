@@ -17,7 +17,7 @@ public class Core.AutoSelectToolItem : ToolItem {
     public override void activate () {}
     public override void deactivate () {}
 
-    public override void handle_event (Event<CanvasEventEventData?> event, Gee.LinkedList<unowned LayerStackItem> selected) {
+    public override void handle_event (Widgets.CanvasView canvas_view, Clutter.Event event, Gee.LinkedList<unowned LayerStackItem> selected) {
 
     }
 

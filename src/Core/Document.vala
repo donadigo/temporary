@@ -12,17 +12,23 @@ public class Core.Document : Object {
     public DisplayMode display_mode { get; set; default = DisplayMode.ACTOR; }
     public Image image { get; construct; }
 
+    public uint64 id { get; construct; }
+
     public float scale { get; set; default = 1.0f; }
 
     public signal void size_updated ();
     public signal void repaint ();
 
+    static uint64 current_id = 0U;
+
     construct {
+        id = current_id++;
+
         layer_stack = new LayerStack ();
         graph = new ImageGraph (this);
         image = new Image ();
 
-        EventBus.subscribe (EventType.CANVAS_EVENT, on_canvas_event);
+        EventBus.get_default ().canvas_event.connect (on_canvas_event);
     }
 
     public Document (int width, int height) {
@@ -68,10 +74,10 @@ public class Core.Document : Object {
         });
     }
 
-    void on_canvas_event (Event<CanvasEventEventData?> event) {
+    void on_canvas_event (Widgets.CanvasView cv, Clutter.Event event) {
         unowned ToolItem? current = ToolCollection.get_default ().active;
         if (current != null) {
-            current.handle_event (event, layer_stack.selected);
+            current.handle_event (cv, event, layer_stack.selected);
         }
     }
 }

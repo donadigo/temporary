@@ -28,6 +28,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
 
     construct {
         selection_mode = Gtk.SelectionMode.SINGLE;
+        expand = true;
         doc.layer_stack.added.connect (on_layer_stack_added);
         key_press_event.connect (on_key_press_event);
 
@@ -94,6 +95,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
                 return true;
             } else {
                 selection_mode = Gtk.SelectionMode.SINGLE;
+                unselect_all ();
                 select_row_post (row_widget);
                 focus_canvas ();
                 return true;
@@ -145,10 +147,6 @@ public class Widgets.LayerListBox : Gtk.ListBox {
     }
 
     void focus_canvas () {
-        var data = FocusCanvasEventData () {
-            doc = doc
-        };
-
-        EventBus.post<FocusCanvasEventData?> (EventType.FOCUS_CANVAS, data);        
+        EventBus.get_default ().focus_canvas (doc);
     }
 }

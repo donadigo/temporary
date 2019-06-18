@@ -4,6 +4,8 @@ public class Widgets.DockHandle : Gtk.EventBox {
     public signal void detached (Gdk.EventMotion event);
     public Gdk.Point relative_start;
 
+    const int DETACH_DISTANCE = 25;
+
     bool dragging = false;
     Gdk.Point start;
 
@@ -32,7 +34,7 @@ public class Widgets.DockHandle : Gtk.EventBox {
             double cx, cy;
             event.get_coords (out cx, out cy);
             relative_start = { (int)cx, (int)cy };
-            set_cursor ("grabbing");
+            EventBus.get_default ().change_cursor ("grabbing", get_window ());
         }
 
         return true;
@@ -41,7 +43,7 @@ public class Widgets.DockHandle : Gtk.EventBox {
     private bool on_handle_button_release_event (Gdk.EventButton event) {
         if (dragging && event.button == 1) {
             dragging = false;
-            set_cursor ("default");
+            EventBus.get_default ().change_cursor ("default", get_window ());
         }
         
         return true;
@@ -50,7 +52,7 @@ public class Widgets.DockHandle : Gtk.EventBox {
     private bool on_handle_motion_notify_event (Gdk.EventMotion event) {
         if (dragging) {
             Gdk.Point p = { (int)event.x, (int)event.y };
-            if (distance (start, p) > 25) {
+            if (distance (start, p) > DETACH_DISTANCE) {
                 detach ();
                 detached (event);
                 dragging = false;
@@ -58,10 +60,6 @@ public class Widgets.DockHandle : Gtk.EventBox {
         }
 
         return true;
-    }
-
-    private void set_cursor (string name) {
-        EventBusUtils.change_cursor (name, get_window ());
     }
 
     private static double distance (Gdk.Point p1, Gdk.Point p2) {

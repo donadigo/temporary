@@ -28,19 +28,19 @@ public class Core.MoveToolItem : ToolItem {
     public override void activate () {}
     public override void deactivate () {}
 
-    public override void handle_event (Event<CanvasEventEventData?> event, Gee.LinkedList<unowned LayerStackItem> selected) {
-        switch (event.data.event.type) {
+    public override void handle_event (Widgets.CanvasView canvas_view, Clutter.Event event, Gee.LinkedList<unowned LayerStackItem> selected) {
+        switch (event.type) {
             case BUTTON_PRESS:
-                handle_button_press (event.data.canvas_view, (Clutter.ButtonEvent)event.data.event, selected);
+                handle_button_press (canvas_view, (Clutter.ButtonEvent)event, selected);
                 break;
             case BUTTON_RELEASE:
-                handle_button_release (event.data.canvas_view, (Clutter.ButtonEvent)event.data.event, selected);
+                handle_button_release (canvas_view, (Clutter.ButtonEvent)event, selected);
                 break;
             case MOTION:
-                handle_motion (event.data.canvas_view, (Clutter.MotionEvent)event.data.event, selected);
+                handle_motion (canvas_view, (Clutter.MotionEvent)event, selected);
                 break;
             case KEY_PRESS:
-                handle_key_press (event.data.canvas_view, (Clutter.KeyEvent)event.data.event, selected);
+                handle_key_press (canvas_view, (Clutter.KeyEvent)event, selected);
                 break;
         }
     }

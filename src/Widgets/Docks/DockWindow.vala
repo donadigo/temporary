@@ -1,6 +1,10 @@
 
 using Core;
 
+public struct DrawHighlightEventData {
+    unowned Widgets.CDockWindow.AllocateHighlightRectangleCb? allocate_cb;
+}
+
 public class Widgets.CDockWindow : GlobalWindow {
     /**
      * Unfortunately Gtk does not provide a way to check
@@ -99,11 +103,6 @@ public class Widgets.CDockWindow : GlobalWindow {
         return base.configure_event (event);
     }
 
-    //  static inline bool rect_contains (Gdk.Rectangle rect, int x, int y) {
-    //      return x >= rect.x && x <= rect.x + rect.width
-    //          && y >= rect.y && y <= rect.y + rect.height;
-    //  }
-
     void setup_hover_timeout (DockContainer container) {
         hover_timeout_id = Timeout.add (HOVER_TIMEOUT, () => {
             hover_timeout_id = 0U;
@@ -122,6 +121,10 @@ public class Widgets.CDockWindow : GlobalWindow {
 
     void show_highlight () {
         AllocateHighlightRectangleCb cb = (toplevel) => {
+            if (current_hover == null) {
+                return {};
+            }
+
             int x = 0, y = 0;
             if (toplevel != null) {
                 current_hover.translate_coordinates (toplevel, 0, 0, out x, out y);
@@ -142,7 +145,7 @@ public class Widgets.CDockWindow : GlobalWindow {
             allocate_cb = cb
         };
 
-        EventBus.post<DrawHighlightEventData?> (EventType.DRAW_HIGHLIGHT, data);
+        EventBus.get_default ().draw_highlight (data);
     }
 
     void hide_highlight () {
@@ -150,7 +153,7 @@ public class Widgets.CDockWindow : GlobalWindow {
             allocate_cb = null
         };
 
-        EventBus.post<DrawHighlightEventData?> (EventType.DRAW_HIGHLIGHT, data);
+        EventBus.get_default ().draw_highlight (data);
     }
 
     bool on_button_press_event (Gdk.EventButton event) {

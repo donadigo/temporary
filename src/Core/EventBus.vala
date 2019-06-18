@@ -1,15 +1,5 @@
 
 public class Core.EventBus : Object {
-    struct Subscriber {
-        EventType flags;
-        unowned ReceiveCallback callback;
-    }
-
-    Gee.HashMap<uint, Subscriber?> subscribers;
-    uint current_id = 1U;
-
-    public delegate void ReceiveCallback (Event event);
-
     static EventBus? instance = null;
     public static unowned EventBus get_default () {
         if (instance == null) {
@@ -19,42 +9,14 @@ public class Core.EventBus : Object {
         return instance;
     }
 
-    public static uint subscribe (EventType flags, ReceiveCallback callback) {
-        return get_default ()._subscribe (flags, callback);
-    }
+    public signal void canvas_event (Widgets.CanvasView canvas_view, Clutter.Event event);
+    public signal void force_redraw_canvas (Core.Document doc);
+    public signal void focus_canvas (Core.Document doc);
 
-    public static void post<G> (EventType type, G data) {
-        var event = Event<G> () {
-            type = type,
-            data = data
-        };
-        get_default ()._post (event);
-    }
+    public signal void draw_highlight (DrawHighlightEventData data);
 
-    construct {
-        subscribers = new Gee.HashMap<uint, Subscriber?> ();
-    }
-
-    protected EventBus () {
-
-    }
-
-    internal uint _subscribe (EventType flags, ReceiveCallback callback) {
-        var sub = Subscriber () {
-            flags = flags,
-            callback = callback
-        };
-
-        subscribers[current_id] = sub;
-        return current_id++;
-
-    }
-
-    internal void _post (Event event) {
-        foreach (var sub in subscribers.values) {
-            if (event.type in sub.flags) {
-                sub.callback (event);
-            }
-        }
-    }
+    public signal void change_cursor (string name, Gdk.Window? window = null);
+    public signal void freeze_cursor_changes (bool freeze);
+    public signal void current_document_changed (Core.Document? doc);
+    public signal void select_layers (Gee.LinkedList<unowned Core.LayerStackItem> items);
 }
