@@ -7,4 +7,8 @@ public class Core.ToolItemGroup : Gee.ArrayList<ToolItem> {
         group.add (item);
         return group;
     }
+
+    public ToolItem get_first () {
+        return this[0];
+    }
 }

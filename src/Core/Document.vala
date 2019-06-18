@@ -12,7 +12,7 @@ public class Core.Document : Object {
     public DisplayMode display_mode { get; set; default = DisplayMode.ACTOR; }
     public Image image { get; construct; }
 
-    public float scale { get; set; default = 2.0f; }
+    public float scale { get; set; default = 1.0f; }
 
     public signal void size_updated ();
     public signal void repaint ();
@@ -21,6 +21,8 @@ public class Core.Document : Object {
         layer_stack = new LayerStack ();
         graph = new ImageGraph (this);
         image = new Image ();
+
+        EventBus.subscribe (EventType.CANVAS_EVENT, on_canvas_event);
     }
 
     public Document (int width, int height) {
@@ -64,5 +66,12 @@ public class Core.Document : Object {
 
             return null;
         });
+    }
+
+    void on_canvas_event (Event<CanvasEventEventData?> event) {
+        unowned ToolItem? current = ToolCollection.get_default ().active;
+        if (current != null) {
+            current.handle_event (event, layer_stack.selected);
+        }
     }
 }

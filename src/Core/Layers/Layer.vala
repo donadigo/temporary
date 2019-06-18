@@ -9,6 +9,7 @@ public abstract class Core.Layer : Object, LayerStackItem {
 
     public Gegl.Rectangle bounding_box { get; set; }
     public signal void repaint ();
+    public signal void bounding_box_updated ();
     public signal void ready ();
 
     // Dirty = is in the actor mode
@@ -23,11 +24,6 @@ public abstract class Core.Layer : Object, LayerStackItem {
         screen_material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         screen_material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         CoglFixes.set_user_program (screen_material, BlendingShader.get_default ().program);
-    }
-
-    construct {
-        notify["opacity"].connect (() => repaint ());
-        notify["blending-mode"].connect (() => repaint ());
     }
 
     public virtual void paint_content (Document document, LayerActor actor) {

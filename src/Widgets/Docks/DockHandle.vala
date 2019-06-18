@@ -1,4 +1,4 @@
-
+using Core;
 
 public class Widgets.DockHandle : Gtk.EventBox {
     public signal void detached (Gdk.EventMotion event);
@@ -61,8 +61,7 @@ public class Widgets.DockHandle : Gtk.EventBox {
     }
 
     private void set_cursor (string name) {
-        var cursor = new Gdk.Cursor.from_name (Gdk.Display.get_default (), name);
-        get_window ().set_cursor (cursor);
+        EventBusUtils.change_cursor (name, get_window ());
     }
 
     private static double distance (Gdk.Point p1, Gdk.Point p2) {

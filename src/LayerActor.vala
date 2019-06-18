@@ -5,19 +5,13 @@ public class LayerActor : Clutter.Actor {
     public Core.Layer layer { get; construct; }
     public unowned Core.RenderPipeline pipeline { get; construct; }
 
-    bool dragging = false;
-    float drag_x = 0;
-    float drag_y = 0;
-
-    Gegl.Rectangle start_box;
-
     public LayerActor (Core.Document doc, Core.Layer layer, Core.RenderPipeline pipeline) {
         Object (doc: doc, layer: layer, pipeline: pipeline);
     }
 
     construct {
         reactive = true;
-        layer.notify["bounding-box"].connect (update_bounding_box);
+        layer.bounding_box_updated.connect (update_bounding_box);
         layer.notify["opacity"].connect (update_opacity);
         update_bounding_box ();
         update_opacity ();
@@ -27,86 +21,6 @@ public class LayerActor : Clutter.Actor {
         doc.notify["scale"].connect (() => {
             set_scale (doc.scale, doc.scale);
         });
-    }
-
-    public override bool key_press_event (Clutter.KeyEvent event) {
-        doc.enter_actor_mode ();
-        switch (event.keyval) {
-            case Clutter.Key.Left:
-                layer.bounding_box.x -= 1;
-                update_bounding_box ();
-                break;
-            case Clutter.Key.Right:
-                layer.bounding_box.x += 1;
-                update_bounding_box ();
-                break;
-            case Clutter.Key.Down:
-                layer.bounding_box.y += 1;
-                update_bounding_box ();
-                break;
-            case Clutter.Key.Up:
-                layer.bounding_box.y -= 1;
-                update_bounding_box ();
-                break;                    
-        }
-
-        return true;
-    }
-
-    public override bool key_release_event (Clutter.KeyEvent event) {
-        doc.process_graph ();
-        return true;
-    }
-
-    public override bool motion_event (Clutter.MotionEvent event) {
-        if (dragging) {
-            float ex = event.x / (float)scale_x;
-            float ey = event.y / (float)scale_y;
-            get_parent ().transform_stage_point (ex, ey, out ex, out ey);
-
-            float delta_x = ex - drag_x;
-            float delta_y = ey - drag_y;
-            layer.bounding_box = new Gegl.Rectangle (
-                start_box.x + (int)delta_x, start_box.y + (int)delta_y,
-                layer.bounding_box.width, layer.bounding_box.height
-            );
-
-            layer.update ();
-        }
-        
-        return true;
-    }
-
-    public override bool button_release_event (Clutter.ButtonEvent event) {
-        if (event.button == 1) {
-            doc.process_graph ();
-            layer.dirty = false;
-            dragging = false;
-            return true;
-        }
-
-        return false;
-    }
-
-    public override bool button_press_event (Clutter.ButtonEvent event) {
-        if (event.button == 1) {
-            get_stage ().set_key_focus (this);
-            doc.enter_actor_mode ();
-
-            layer.dirty = true;
-
-            float ex = event.x / (float)scale_x;
-            float ey = event.y / (float)scale_y;
-            get_parent ().transform_stage_point (ex, ey, out ex, out ey);
-
-            drag_x = ex;
-            drag_y = ey;
-            start_box = layer.bounding_box;
-            dragging = true;
-            return true;
-        }
-
-        return false;
     }
 
     public override void paint () {

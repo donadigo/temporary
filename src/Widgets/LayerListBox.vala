@@ -29,6 +29,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
     construct {
         selection_mode = Gtk.SelectionMode.SINGLE;
         doc.layer_stack.added.connect (on_layer_stack_added);
+        key_press_event.connect (on_key_press_event);
 
         get_style_context ().add_class ("layers-panel");
     }
@@ -37,10 +38,27 @@ public class Widgets.LayerListBox : Gtk.ListBox {
         var row = new LayerRow (layer);
         row.button_press_event.connect (on_row_button_press_event);
         insert (row, 0);
+
+        if (get_children ().length () == 1) {
+            select_row_post (row);
+        }
+
         Idle.add (() => {
             update_zebra ();
             return false;
         });
+    }
+
+    bool on_key_press_event (Gdk.EventKey event) {
+        switch (event.keyval) {
+            case Gdk.Key.uparrow:
+            case Gdk.Key.downarrow:
+                return true;
+            default:
+                break;
+        }
+
+        return false;
     }
 
     bool on_row_button_press_event (Gtk.Widget row_widget, Gdk.EventButton event) {
@@ -67,14 +85,17 @@ public class Widgets.LayerListBox : Gtk.ListBox {
                     select_row_post (row_widget);
                 }
 
+                focus_canvas ();
                 return true;
             } else if (GlobalKeyState.any_pressed ({ Gdk.Key.Control_L, Gdk.Key.Control_R })) {
                 selection_mode = Gtk.SelectionMode.MULTIPLE;
-                select_row_post (row_widget);
+                select_row_post (row_widget, true);
+                focus_canvas ();
                 return true;
             } else {
                 selection_mode = Gtk.SelectionMode.SINGLE;
                 select_row_post (row_widget);
+                focus_canvas ();
                 return true;
             }
         }
@@ -82,14 +103,18 @@ public class Widgets.LayerListBox : Gtk.ListBox {
         return false;
     }
 
-    void select_row_post (Gtk.Widget row) {
+    void select_row_post (Gtk.Widget row, bool add_existing = false) {
         var layer_row = (LayerRow)row;
         row.activate ();
         
         var items = new Gee.LinkedList<unowned LayerStackItem> ();
         items.add (layer_row.layer);
 
-        doc.layer_stack.set_selection (items);
+        if (add_existing) {
+            doc.layer_stack.add_to_selection (items);
+        } else {
+            doc.layer_stack.set_selection (items);
+        }
     }
 
     void select_rows_post (int start, int end) {
@@ -101,7 +126,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
             select_row (row);
         }
 
-        doc.layer_stack.set_selection (items);
+        doc.layer_stack.add_to_selection (items);
     }
 
     void update_zebra () {
@@ -117,5 +142,13 @@ public class Widgets.LayerListBox : Gtk.ListBox {
 
             even = !even;
         }
+    }
+
+    void focus_canvas () {
+        var data = FocusCanvasEventData () {
+            doc = doc
+        };
+
+        EventBus.post<FocusCanvasEventData?> (EventType.FOCUS_CANVAS, data);        
     }
 }

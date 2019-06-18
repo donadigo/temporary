@@ -9,7 +9,37 @@ public enum Core.BlendingMode {
     LINEAR_BURN = 7,
     ADD = 8,
     SUBTRACT = 9,
-    EXCLUSION = 10;
+    EXCLUSION = 10,
+    LAST = 11;
+
+    public static string get_name (BlendingMode mode) {
+        switch (mode) {
+            case NORMAL:
+                return _("Normal");
+            case MULTIPLY:
+                return _("Multiply");
+            case SCREEN:
+                return _("Screen");
+            case OVERLAY:
+                return _("Overlay");
+            case SOFT_LIGHT:
+                return _("Soft light");
+            case HARD_LIGHT:
+                return _("Hard light");
+            case COLOR_BURN:
+                return _("Color burn");
+            case LINEAR_BURN:
+                return _("Linear burn");
+            case ADD:
+                return _("Add");
+            case SUBTRACT:
+                return _("Subtract");
+            case EXCLUSION:
+                return _("Exclusion");
+            default:
+                assert_not_reached ();
+        }
+    }
 
     public static string to_gegl_op (BlendingMode mode) {
         switch (mode) {

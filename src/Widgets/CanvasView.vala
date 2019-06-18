@@ -48,6 +48,41 @@ public class Widgets.CanvasView : Clutter.Actor {
         cached = false;
     }
 
+    public override bool event (Clutter.Event event) {
+        var data = CanvasEventEventData () {
+            canvas_view = this,
+            event = event
+        };
+
+        EventBus.post<CanvasEventEventData?> (EventType.CANVAS_EVENT, data);
+        return false;
+    }
+
+    public LayerActor? get_actor_by_layer (Layer? layer) {
+        foreach (unowned Clutter.Actor actor in get_children ()) {
+            if (((LayerActor)actor).layer == layer) {
+                return (LayerActor)actor;
+            }
+        }
+
+        return null;
+    }
+
+    //  public Gee.LinkedList<unowned LayerActor?> get_actors_for_items (Gee.LinkedList<unowned LayerStackItem> items) {
+    //      var actors = new Gee.LinkedList<unowned LayerActor> ();
+    //      foreach (unowned Clutter.Actor actor in get_children ()) {
+    //          if (item is Layer) {
+
+    //          } else {
+    //              actors.add (null);
+    //          }
+
+            
+    //      }
+
+    //      return actors;
+    //  }
+
     public override void paint () {
         if (doc.display_mode == GRAPH) {
             paint_graph ();
@@ -89,6 +124,7 @@ public class Widgets.CanvasView : Clutter.Actor {
                     children.nth_data (i).paint ();
                 }
             } else {
+                print ("Painting from cache.\n");
                 paint_from_cache (index);
             }
         } else {

@@ -13,4 +13,11 @@ public class Core.DrawPathToolItem : ToolItem {
             return "draw-path";
         }
     }
+
+    public override void activate () {}
+    public override void deactivate () {}
+
+    public override void handle_event (Event<CanvasEventEventData?> event, Gee.LinkedList<unowned LayerStackItem> selected) {
+
+    }
 }

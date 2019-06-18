@@ -1,5 +1,5 @@
 
-
+using Core;
 
 public class Widgets.CDockWindow : GlobalWindow {
     /**
@@ -18,10 +18,12 @@ public class Widgets.CDockWindow : GlobalWindow {
         MOVE = 2,
     }
 
-    const uint HOVER_TIMEOUT = 200;
-    //  uint hover_timeout_id = 0U;
+    public delegate Gdk.Rectangle AllocateHighlightRectangleCb (Gtk.Widget toplevel);
+
+    const uint HOVER_TIMEOUT = 500;
+    const int MIN_HIGHLIGHT_SIZE = 10;
+    uint hover_timeout_id = 0U;
     MoveStage move_stage = MoveStage.MOVE;
-    bool escaped_source_dock = false;
 
     unowned DockContainer? current_hover = null;
 
@@ -75,18 +77,23 @@ public class Widgets.CDockWindow : GlobalWindow {
         rect.height += 1;
 
         current_hover = null;
+        bool intersects = false;
         foreach (var container in containers) {
             var crect = container.get_absolute_frame ();
 
             Gdk.Rectangle intersection;
             if (rect.intersect (crect, out intersection)) {
-                current_hover = container;
+                stop_hover_timeout ();
+                setup_hover_timeout (container);
+                intersects = true;
                 break;
-            } else if (!escaped_source_dock) {
-                escaped_source_dock = true;
-                //  Source.remove (hover_timeout_id);
-                //  hover_timeout_id = 0U;
+            } else {
+                stop_hover_timeout ();
             }
+        }
+
+        if (!intersects) {
+            hide_highlight ();
         }
 
         return base.configure_event (event);
@@ -96,6 +103,55 @@ public class Widgets.CDockWindow : GlobalWindow {
     //      return x >= rect.x && x <= rect.x + rect.width
     //          && y >= rect.y && y <= rect.y + rect.height;
     //  }
+
+    void setup_hover_timeout (DockContainer container) {
+        hover_timeout_id = Timeout.add (HOVER_TIMEOUT, () => {
+            hover_timeout_id = 0U;
+            current_hover = container;
+            show_highlight ();
+            return false;
+        });
+    }
+
+    void stop_hover_timeout () {
+        if (hover_timeout_id != 0U) {
+            Source.remove (hover_timeout_id);
+            hover_timeout_id = 0U;
+        }
+    }
+
+    void show_highlight () {
+        AllocateHighlightRectangleCb cb = (toplevel) => {
+            int x = 0, y = 0;
+            if (toplevel != null) {
+                current_hover.translate_coordinates (toplevel, 0, 0, out x, out y);
+            }
+
+            Gtk.Allocation alloc;
+            current_hover.get_allocation (out alloc);
+
+            alloc.width = int.max (alloc.width, MIN_HIGHLIGHT_SIZE);
+            alloc.height = int.max (alloc.height, MIN_HIGHLIGHT_SIZE);
+
+            alloc.x = x;
+            alloc.y = y;
+            return alloc;
+        };
+
+        var data = DrawHighlightEventData () {
+            allocate_cb = cb
+        };
+
+        EventBus.post<DrawHighlightEventData?> (EventType.DRAW_HIGHLIGHT, data);
+    }
+
+    void hide_highlight () {
+        var data = DrawHighlightEventData () {
+            allocate_cb = null
+        };
+
+        EventBus.post<DrawHighlightEventData?> (EventType.DRAW_HIGHLIGHT, data);
+    }
 
     bool on_button_press_event (Gdk.EventButton event) {
         if (event.button == Gdk.BUTTON_PRIMARY && event.get_window () == get_titlebar ().get_window ()) {
@@ -107,7 +163,10 @@ public class Widgets.CDockWindow : GlobalWindow {
     }
 
     bool on_enter_notify_event (Gdk.EventCrossing event) {
-        if (event.get_window () != get_titlebar ().get_window () && move_stage == MoveStage.MOVE && escaped_source_dock) {
+        stop_hover_timeout ();
+        hide_highlight ();
+
+        if (event.get_window () != get_titlebar ().get_window () && move_stage == MoveStage.MOVE) {
             on_drop ();
             return true;
         }

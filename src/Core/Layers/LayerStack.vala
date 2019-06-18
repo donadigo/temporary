@@ -19,12 +19,57 @@ public class Core.LayerStack : Object {
 
     public void append (Layer layer) {
         items.add (layer);
-        layer.notify["dirty"].connect (() => on_layer_dirty_changed ());
         added (layer);
+    }
+
+    public void get_best_display_settings (out float opacity, out BlendingMode mode) {
+        if (selected.size == 1) {
+            opacity = (float)selected[0].opacity;
+            mode = selected[0].blending_mode;
+        } else if (selected.size > 1) {
+            float dominant_opacity = selected[0].opacity;
+            var dominant_mode = selected[0].blending_mode;
+
+            bool opacity_equal = true;
+            bool mode_equal = true;
+            for (int i = 1; i < selected.size; i++) {
+                if (opacity_equal && selected[i].opacity != dominant_opacity) {
+                    opacity_equal = false;
+                }
+
+                if (mode_equal && selected[i].blending_mode != dominant_mode) {
+                    mode_equal = false;
+                }
+
+                if (!mode_equal && !opacity_equal) {
+                    break;
+                }
+            }
+
+            if (opacity_equal) {
+                opacity = dominant_opacity;
+            } else {
+                opacity = 1.0f;
+            }
+
+            if (mode_equal) {
+                mode = dominant_mode;
+            } else {
+                mode = BlendingMode.NORMAL;
+            }
+        } else {
+            opacity = 1.0f;
+            mode = BlendingMode.NORMAL;
+        }
     }
 
     public void set_selection (Gee.LinkedList<unowned LayerStackItem> selection) {
         selected = selection;
+        selection_changed ();
+    }
+
+    public void add_to_selection (Gee.LinkedList<unowned LayerStackItem> items) {
+        selected.add_all (items);
         selection_changed ();
     }
 
@@ -64,16 +109,12 @@ public class Core.LayerStack : Object {
         return unrolled;
     }
 
-    void on_layer_dirty_changed () {
-        Idle.add (() => {
-            foreach (unowned Layer layer in get_unrolled ()) {
-                if (layer.dirty) {
-                    dirty = layer;
-                    break;
-                }
+    public void update_dirty () {
+        foreach (unowned Layer layer in get_unrolled ()) {
+            if (layer.dirty) {
+                dirty = layer;
+                break;
             }
-
-            return false;
-        });
+        }
     }    
 }

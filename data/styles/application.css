@@ -122,3 +122,15 @@
     border-radius: 50%;
     background-color: @primary;
 }
+
+.ctool-button button {
+    border-radius: 10%;
+    padding: 5px;
+    box-shadow: none;
+    -gtk-icon-shadow: none;
+}
+
+.ctool-button button:active,
+.ctool-button button:checked {
+    background-color: alpha (@text_color, 0.1);
+}

@@ -33,7 +33,6 @@ public class Widgets.CDockWidget : Dazzle.DockWidget {
     private void detach (Gdk.EventMotion event) {
         var window = new CDockWindow ();
         box.remove (handle);
-        remove (box);
 
         double rx, ry;
         event.get_root_coords (out rx, out ry);
@@ -47,13 +46,11 @@ public class Widgets.CDockWidget : Dazzle.DockWidget {
             window.disconnect (map_id);
         });
 
+        ((Gtk.Widget)this).get_parent ().remove (this);
         window.set_handle (handle);
         window.set_default_size (alloc.width, -1);
         window.move ((int)rx - handle.relative_start.x, (int)ry - handle.relative_start.y);
-        window.add (box);
+        window.add (this);
         window.show_all ();
-
-        ((Gtk.Widget)this).get_parent ().remove (this);
-        destroy ();
     }
 }
