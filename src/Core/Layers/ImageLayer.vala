@@ -43,7 +43,7 @@ public class Core.ImageLayer : Layer {
         Cogl.rectangle (0, 0, (float)bounding_box.width, (float)bounding_box.height);
     }
 
-    public override void update () {
+    public override void update_internal () {
         rebuild_texture ();
     }
 

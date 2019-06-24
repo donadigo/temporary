@@ -3,18 +3,18 @@
 
 
 public class Core.LayerStack : Object {
-    public Gee.LinkedList<LayerStackItem> items { get; construct; }
+    public LayerList items { get; construct; }
 
     public signal void added (Layer layer);
     public signal void removed (Layer layer);
     public signal void selection_changed ();
 
     public Layer? dirty { get; private set; }
-    public Gee.LinkedList<unowned LayerStackItem> selected { get; private set; }
+    public LayerList selected { get; private set; }
 
     construct {
-        items = new Gee.LinkedList<LayerStackItem> ();
-        selected = new Gee.LinkedList<unowned LayerStackItem> ();
+        items = new LayerList ();
+        selected = new LayerList ();
     }
 
     public void append (Layer layer) {
@@ -63,12 +63,12 @@ public class Core.LayerStack : Object {
         }
     }
 
-    public void set_selection (Gee.LinkedList<unowned LayerStackItem> selection) {
+    public void set_selection (LayerList selection) {
         selected = selection;
         selection_changed ();
     }
 
-    public void add_to_selection (Gee.LinkedList<unowned LayerStackItem> items) {
+    public void add_to_selection (LayerList items) {
         selected.add_all (items);
         selection_changed ();
     }

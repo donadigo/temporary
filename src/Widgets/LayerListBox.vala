@@ -109,7 +109,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
         var layer_row = (LayerRow)row;
         row.activate ();
         
-        var items = new Gee.LinkedList<unowned LayerStackItem> ();
+        var items = new LayerList ();
         items.add (layer_row.layer);
 
         if (add_existing) {
@@ -120,7 +120,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
     }
 
     void select_rows_post (int start, int end) {
-        var items = new Gee.LinkedList<unowned LayerStackItem> ();
+        var items = new LayerList ();
         for (int i = start; i <= end; i++) {
             var row = get_row_at_index (i);
             var layer_row = (LayerRow)row;

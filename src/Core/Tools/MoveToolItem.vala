@@ -50,6 +50,7 @@ public class Core.MoveToolItem : ToolItem {
             return;
         }
 
+        EventBus.get_default ().freeze_cursor_changes (true);
         cv.get_stage ().set_key_focus (cv);
         cv.doc.enter_actor_mode ();
         start_boxes.clear ();
@@ -80,6 +81,7 @@ public class Core.MoveToolItem : ToolItem {
             return;
         }
 
+        EventBus.get_default ().freeze_cursor_changes (false);
         foreach (unowned LayerStackItem item in selected) {
             if (item is Layer) {
                 ((Layer)item).dirty = false;
@@ -99,9 +101,9 @@ public class Core.MoveToolItem : ToolItem {
                 }
 
                 var actor = cv.get_actor_by_layer (layer);
-                float ex = event.x / (float)actor.scale_x;
-                float ey = event.y / (float)actor.scale_y;
-                cv.get_parent ().transform_stage_point (ex, ey, out ex, out ey);
+                
+                float ex, ey;
+                Canvas.CanvasUtils.translate_to_stage_layer (cv.get_parent (), event, actor, out ex, out ey);
 
                 float delta_x = ex - drag_x;
                 float delta_y = ey - drag_y;
@@ -112,7 +114,6 @@ public class Core.MoveToolItem : ToolItem {
                     layer.bounding_box.width, layer.bounding_box.height
                 );
 
-                layer.update ();
                 layer.bounding_box_updated ();
             }
         }        

@@ -38,6 +38,10 @@ public class Widgets.MainView : Gtk.Grid {
         attach (paned, 0, 1, 1, 1);
     }
 
+    public unowned WorkspaceTab? get_current_tab () {
+        return (WorkspaceTab)notebook_view.current;
+    }
+
     async void add_layers (WorkspaceTab tab) {
         var layer = new ImageLayer (tab.doc, File.new_for_path ("/usr/share/icons/elementary/status/64/dialog-error.svg"));
         layer.opacity = 0.5f;
@@ -51,7 +55,7 @@ public class Widgets.MainView : Gtk.Grid {
         //  layer.opacity = 0.5f;
         yield add_layer (tab.doc, layer);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             layer = new ImageLayer (tab.doc, File.new_for_path ("/home/donadigo/rect.png"));
             layer.blending_mode = BlendingMode.OVERLAY;
             yield add_layer (tab.doc, layer);

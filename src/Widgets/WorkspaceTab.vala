@@ -3,7 +3,7 @@
 using Core;
 
 public class Widgets.WorkspaceTab : Granite.Widgets.Tab {
-    WorkspaceView ws_view;
+    public WorkspaceView ws_view { get; construct; }
     public Document doc { get; construct; }
  
     construct {

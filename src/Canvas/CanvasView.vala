@@ -35,7 +35,6 @@ public class Widgets.CanvasView : Clutter.Actor {
         doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
     }
 
-
     public void update_size (float w, float h) {
         float pw, ph;
         pipeline.get_size (out pw, out ph);
@@ -53,7 +52,7 @@ public class Widgets.CanvasView : Clutter.Actor {
         return false;
     }
 
-    public LayerActor? get_actor_by_layer (Layer? layer) {
+    public unowned LayerActor? get_actor_by_layer (Layer? layer) {
         foreach (unowned Clutter.Actor actor in get_children ()) {
             if (((LayerActor)actor).layer == layer) {
                 return (LayerActor)actor;

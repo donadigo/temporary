@@ -4,8 +4,8 @@ using Core;
 
 public class Widgets.WorkspaceView : Dazzle.DockBin {
     public Document doc { get; construct; }
-    CanvasView cv;
-    Clutter.Stage stage;
+    public CanvasView cv { get; construct; }
+    public Clutter.Stage stage { get; construct; }
 
     GtkClutter.Embed embed;
 
@@ -29,8 +29,11 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
         add (embed);
         on_allocation_changed ();
 
-        EventBus.get_default ().focus_canvas.connect (on_focus_canvas);
-        EventBus.get_default ().force_redraw_canvas.connect (on_force_redraw_canvas);
+        unowned EventBus event_bus = EventBus.get_default ();
+        event_bus.focus_canvas.connect (on_focus_canvas);
+        event_bus.force_redraw_canvas.connect (on_force_redraw_canvas);
+
+        doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
     }
 
     public WorkspaceView (Document doc) {
@@ -73,8 +76,15 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
 
     void on_force_redraw_canvas (Document _doc) {
         if (_doc == doc) {
-            cv.queue_redraw ();
+            stage.redraw ();
         }        
+    }
+
+    void on_layer_stack_selection_changed () {
+        //  if (doc.layer_stack.selected.size > 0) {
+        //      var layer = (Layer)((Gee.LinkedList<unowned LayerStackItem>)doc.layer_stack.selected)[0];
+        //      LayerTransformService.get_default ().activate (stage, cv, layer);
+        //  }
     }
 
     // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/

@@ -1,6 +1,16 @@
 using Core;
 
 public class Widgets.CMainWindow : GlobalWindow {
+    public const string ACTION_PREFIX = "win.";
+    public const string ACTION_TRANSFORM_CURRENT = "action_transform_current";
+    public SimpleActionGroup actions { get; construct; }
+
+    public static Gee.MultiMap<string, string> action_accelerators = new Gee.HashMultiMap<string, string> ();
+
+    private const ActionEntry[] action_entries = {
+        { ACTION_TRANSFORM_CURRENT, action_transform_current }
+    };
+
     const double HIGHTLIGHT_MAX_OPACITY = 0.5;
     const double HL_OPACITY_DELTA = 0.02;
 
@@ -13,13 +23,28 @@ public class Widgets.CMainWindow : GlobalWindow {
 
     unowned CDockWindow.AllocateHighlightRectangleCb? highlight_allocate_cb;
 
+    static construct {
+        action_accelerators[ACTION_TRANSFORM_CURRENT] = "<Control>t";
+    }
+
     public CMainWindow (Gtk.Application app) {
         Object (application: app);
+
+        foreach (var action in action_accelerators.get_keys ()) {
+            var accels_array = action_accelerators[action].to_array ();
+            accels_array += null;
+
+            app.set_accels_for_action (ACTION_PREFIX + action, accels_array);
+        }
     }
 
     construct {
         weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default ();
         default_theme.add_resource_path ("/com/github/donadigo/temporary");
+
+        actions = new SimpleActionGroup ();
+        actions.add_action_entries (action_entries, this);
+        insert_action_group ("win", actions);
 
         header_bar = new CHeaderBar ();
         set_titlebar (header_bar);
@@ -80,5 +105,19 @@ public class Widgets.CMainWindow : GlobalWindow {
         }
 
         return result;
+    }
+
+    void action_transform_current () {
+        unowned WorkspaceTab? tab = main_view.get_current_tab ();
+        if (tab == null) {
+            return;
+        }
+
+        unowned LayerTransformService service = LayerTransformService.get_default ();
+        service.deactivate_current ();
+        
+        foreach (unowned Layer layer in tab.ws_view.doc.layer_stack.selected.get_layers ()) {
+            service.activate (tab.ws_view.stage, tab.ws_view.cv, layer);
+        }
     }
 }

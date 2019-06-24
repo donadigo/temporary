@@ -75,9 +75,14 @@ public class Widgets.LayerDockWidget : CDockWidget {
         if (current_doc != null) {
             current_doc.layer_stack.selection_changed.connect (on_layer_stack_selection_changed);
 
-            // TODO: find an existing list box 
-            var list_box = new LayerListBox (current_doc);
-            list_box_stack.add_named (list_box, current_doc.id.to_string ());
+            string name = current_doc.id.to_string ();
+            unowned Gtk.Widget? list_box = list_box_stack.get_child_by_name (name);
+            if (list_box != null) {
+                list_box_stack.visible_child_name = name;
+            } else {
+                var _list_box = new LayerListBox (current_doc);
+                list_box_stack.add_named (_list_box, current_doc.id.to_string ());
+            }
         }
     }
 
@@ -104,6 +109,8 @@ public class Widgets.LayerDockWidget : CDockWidget {
         foreach (unowned LayerStackItem item in current_doc.layer_stack.selected) {
             item.opacity = (float)op_scale.get_value ();
         }
+
+        EventBus.get_default ().force_redraw_canvas (current_doc);
     }
 
     bool on_op_scale_button_press_event (Gdk.EventButton event) {
@@ -149,7 +156,6 @@ public class Widgets.LayerDockWidget : CDockWidget {
         }   
 
         current_doc.layer_stack.update_dirty ();
-        EventBus.get_default ().force_redraw_canvas (current_doc);
     }
 
     void on_op_label_step (int step) {

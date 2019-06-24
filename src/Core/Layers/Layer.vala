@@ -18,6 +18,7 @@ public abstract class Core.Layer : Object, LayerStackItem {
     public Gegl.Node node { get; protected set; }
 
     static Cogl.Material screen_material;
+    int freeze_count = 0;
 
     static construct {
         screen_material = new Cogl.Material ();
@@ -44,7 +45,23 @@ public abstract class Core.Layer : Object, LayerStackItem {
     public abstract Gegl.Node process (Gegl.Node graph, Gegl.Node source);
     public abstract async Gdk.Pixbuf create_pixbuf (int width, int height);
 
-    public virtual void update () {
+    public void update () {
+        if (freeze_count > 0) {
+            return;
+        }
 
+        update_internal ();
+    }
+
+    public virtual void update_internal () {
+        
+    }
+
+    public void freeze_updates () {
+        freeze_count++;
+    }
+
+    public void thaw_updates () {
+        freeze_count--;
     }
 }
