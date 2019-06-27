@@ -1,36 +1,35 @@
 
 
 
-public class Core.LayerTransformService : Object {
-    static LayerTransformService? instance;
-    public static unowned LayerTransformService get_default () {
-        if (instance == null) {
-            instance = new LayerTransformService ();
-        }
-
-        return instance;
-    }
-
+public class Core.LayerTransformService : Service {
     Gee.LinkedList<TransformActor> actors;
 
     construct {
         actors = new Gee.LinkedList<TransformActor> ();
     }
 
-    public bool activate (Clutter.Stage stage, Widgets.CanvasView canvas_view, Layer layer) {
-        unowned LayerActor? actor = canvas_view.get_actor_by_layer (layer);
-        if (actor == null) return false;
+    public override bool activate (Widgets.CanvasView canvas_view, Gee.HashMap<string, Variant>? options) {
+        unowned Clutter.Stage? stage = canvas_view.get_stage ();
+        if (stage == null) {
+            return false;
+        }
 
-        layer.freeze_updates ();
-        var tactor = new TransformActor (stage, canvas_view, actor);
-        actors.add (tactor);
-        stage.add_child (tactor);
+        foreach (unowned Layer layer in canvas_view.doc.layer_stack.selected.get_layers ()) {
+            unowned LayerActor? actor = canvas_view.get_actor_by_layer (layer);
+            if (actor == null) continue;
+
+            layer.dirty = true;
+            var tactor = new TransformActor (stage, canvas_view, actor);
+            actors.add (tactor);
+            stage.add_child (tactor);
+        }
+
         return true;
     }
 
-    public void deactivate_current () {
+    public override void deactivate () {
         foreach (var tactor in actors) {
-            tactor.layer_actor.layer.thaw_updates ();
+            tactor.layer_actor.layer.dirty = false;
             tactor.destroy ();
         }
 

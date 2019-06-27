@@ -38,6 +38,7 @@ executable(
     'src/Core/Colorspace.vala',
     'src/Core/Image.vala',
     'src/Core/ImageMask.vala',
+    'src/Core/Service.vala',
     'src/Core/LayerTransformService.vala',
     'src/Core/Layers/LayerList.vala',
     'src/Core/Layers/LayerStack.vala',

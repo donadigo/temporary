@@ -132,10 +132,16 @@ public class Widgets.LayerRow : Gtk.ListBoxRow {
         show_all ();
 
         update_icon.begin ();
+        layer.bounding_box_updated.connect (update_icon);
+        layer.notify["opacity"].connect (update_icon);
     }
 
     async void update_icon () {
-        var pixbuf = yield layer.create_pixbuf (30, 30);
-        icon.pixbuf = pixbuf;
+        const int WIDTH = 50;
+
+        var pixbuf = yield layer.create_pixbuf (WIDTH);
+        if (pixbuf != null) {
+            icon.pixbuf = pixbuf;
+        }
     }
 }

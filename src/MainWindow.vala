@@ -113,11 +113,9 @@ public class Widgets.CMainWindow : GlobalWindow {
             return;
         }
 
-        unowned LayerTransformService service = LayerTransformService.get_default ();
-        service.deactivate_current ();
+        LayerTransformService service = Service.get (typeof (LayerTransformService));
+        service.deactivate ();
         
-        foreach (unowned Layer layer in tab.ws_view.doc.layer_stack.selected.get_layers ()) {
-            service.activate (tab.ws_view.stage, tab.ws_view.cv, layer);
-        }
+        service.activate (tab.ws_view.cv, null);
     }
 }

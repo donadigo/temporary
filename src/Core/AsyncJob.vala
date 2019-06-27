@@ -7,7 +7,7 @@ public enum Core.QueueFlags {
 public enum Core.JobType {
     LOAD_FILE,
     PROCESS_GRAPH,
-    SCALE_PIXBUF
+    COMPOSITE_PIXBUF
 }
 
 public class Core.AsyncJob : Object {

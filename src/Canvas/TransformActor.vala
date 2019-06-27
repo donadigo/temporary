@@ -42,8 +42,6 @@ public class TransformActor : Clutter.Actor {
     }
 
     construct {
-        stage.motion_event.connect (on_stage_motion_event);
-        stage.button_release_event.connect (on_stage_button_release_event);
         unowned Layer layer = layer_actor.layer;
         
         main = new TransformHandleActor (0, 0);
@@ -115,6 +113,9 @@ public class TransformActor : Clutter.Actor {
 
         layer_actor.notify["allocation"].connect (reposition);
         stage.notify["allocation"].connect (reposition);
+        stage.motion_event.connect (on_stage_motion_event);
+        stage.button_release_event.connect (on_stage_button_release_event);
+        stage.key_press_event.connect (on_stage_key_event);        
 
         reposition ();
     }
@@ -146,8 +147,6 @@ public class TransformActor : Clutter.Actor {
         bottom_left.set_position (lx - (HALF_HANDLE - 1), ly + lheight - HALF_HANDLE + 1);
         bottom_middle.set_position (lx + lwidth / 2 - HALF_HANDLE, ly + lheight - HALF_HANDLE + 1);
         bottom_right.set_position (lx + lwidth - HALF_HANDLE + 1, ly + lheight - HALF_HANDLE + 1);
-
-        print ("%f, %f\n", bottom_middle.x, bottom_middle.y);
 
         left_middle.set_position (lx - (HALF_HANDLE - 1), ly + lheight / 2 - (HALF_HANDLE - 1));
         right_middle.set_position (lx + lwidth - HALF_HANDLE + 1, ly + lheight / 2 - (HALF_HANDLE - 1));
@@ -289,6 +288,17 @@ public class TransformActor : Clutter.Actor {
         trigger_resize_bottom_right.handle_button_release_event (event);
         trigger_resize_left_middle.handle_button_release_event (event);
         trigger_resize_right_middle.handle_button_release_event (event);
+
+        return false;
+    }
+
+    bool on_stage_key_event (Clutter.KeyEvent event) {
+        if (event.keyval == Clutter.Key.KP_Enter ||
+            event.keyval == 65293 || 
+            event.keyval == Clutter.Key.ISO_Enter || 
+            event.keyval == Clutter.Key.@3270_Enter) {
+            
+        }
 
         return false;
     }

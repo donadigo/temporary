@@ -43,7 +43,7 @@ public abstract class Core.Layer : Object, LayerStackItem {
     }
 
     public abstract Gegl.Node process (Gegl.Node graph, Gegl.Node source);
-    public abstract async Gdk.Pixbuf create_pixbuf (int width, int height);
+    public abstract async Gdk.Pixbuf? create_pixbuf (int width);
 
     public void update () {
         if (freeze_count > 0) {

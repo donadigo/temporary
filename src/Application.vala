@@ -30,7 +30,8 @@ public class CApp : Gtk.Application {
         Gegl.init (ref args);
         Core.Formats.init ();
         Core.GlobalKeyState.init ();
-        
+        Core.Service.init ();
+
         //  Gegl.config ().threads = 4;
         //  Gegl.config ().use_opencl = true;
         //  Gegl.config ().tile_cache_size = 2000000000;

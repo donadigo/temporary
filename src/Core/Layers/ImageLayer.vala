@@ -105,21 +105,51 @@ public class Core.ImageLayer : Layer {
         return over;
     }
 
-    public override async Gdk.Pixbuf create_pixbuf (int width, int height) {
-        if (texture == null) {
-            return new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, width, height);
+    public bool bounding_box_matches_image () {
+        return image.width == bounding_box.width && image.height == bounding_box.height;
+    }
+
+    public override async Gdk.Pixbuf? create_pixbuf (int width) {
+        if (!bounding_box_matches_image ()) {
+            return null;
         }
 
-        float w, h;
-        calculate_aspect_ratio_size_fit (bounding_box.width, bounding_box.height, width, height, out w, out h);
+        float ratio = doc.width / (float)doc.height;
+        int height = (int)(width / ratio);
 
-        var image = new Gdk.Pixbuf.from_data (image.data, Gdk.Colorspace.RGB, true, 8, bounding_box.width, bounding_box.height, bounding_box.width * 4);
-        yield AsyncJob.queue (JobType.SCALE_PIXBUF, QueueFlags.NONE, (job) => {
-            image = image.scale_simple ((int)w, (int)h, Gdk.InterpType.BILINEAR);
+        var pixbuf = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, width, height);
+        pixbuf.fill (0x00000000);
+
+        if (texture == null) {
+            return pixbuf;
+        }
+
+        float thumb_ratio = doc.width / width;
+        int scaled_width = (int)(bounding_box.width / thumb_ratio);
+        int scaled_height = (int)(bounding_box.height / thumb_ratio);
+
+        yield AsyncJob.queue (JobType.COMPOSITE_PIXBUF, QueueFlags.NONE, (job) => {
+            var content = new Gdk.Pixbuf.from_data (image.data, Gdk.Colorspace.RGB, true, 8, bounding_box.width, bounding_box.height, bounding_box.width * 4);
+            content = content.scale_simple (scaled_width, scaled_height, Gdk.InterpType.BILINEAR);
+
+            int x = (int)(bounding_box.x / thumb_ratio);
+            int y = (int)(bounding_box.y / thumb_ratio);
+            
+            int x_off = x >= 0 ? 0 : x.abs ();
+            int y_off = y >= 0 ? 0 : y.abs ();
+
+            int dest_x = int.max (x, 0);
+            int dest_y = int.max (y, 0);
+
+            int w = int.min (scaled_width - x_off, pixbuf.get_width () - dest_x);
+            int h = int.min (scaled_height - y_off, pixbuf.get_height () - dest_y);
+
+            //  content.composite (pixbuf, dest_x, dest_y, w, h, dest_x, dest_y, 1, 1, Gdk.InterpType.BILINEAR, (int)(opacity * 255));
+            content.copy_area (x_off, y_off, w, h, pixbuf, dest_x, dest_y);
             return null;
         });
 
-        return image;
+        return pixbuf;
     }
 
     // From https://opensourcehacker.com/2011/12/01/calculate-aspect-ratio-conserving-resize-for-images-in-javascript/

@@ -2,7 +2,7 @@
 using Core;
 
 public class Widgets.CanvasView : Clutter.Actor {
-    public Document doc { get; construct; }
+    public unowned Document doc { get; construct; }
 
     RenderPipeline pipeline;
     bool cached = false;
