@@ -20,14 +20,13 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
         embed.set_can_focus (true);
         stage = (Clutter.Stage)embed.get_stage ();
         stage.background_color = Clutter.Color.from_string ("#212326");
-        stage.notify["allocation"].connect (on_allocation_changed);
+        stage.notify["allocation"].connect (update_allocation);
 
         stage.add_child (cv);
         stage.set_accept_focus (true);
-        doc.notify["scale"].connect (on_allocation_changed);
+        doc.notify["scale"].connect (update_allocation);
 
         add (embed);
-        on_allocation_changed ();
 
         unowned EventBus event_bus = EventBus.get_default ();
         event_bus.focus_canvas.connect (on_focus_canvas);
@@ -40,7 +39,7 @@ public class Widgets.WorkspaceView : Dazzle.DockBin {
         Object (doc: doc);
     }
 
-    void on_allocation_changed () {
+    public void update_allocation () {
         float w, h;
         calculate_aspect_ratio_size_fit (doc.width, doc.height, stage.width, stage.height, out w, out h);
 

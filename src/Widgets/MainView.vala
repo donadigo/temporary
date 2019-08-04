@@ -1,6 +1,4 @@
 
-
-
 using Core;
 
 public class Widgets.MainView : Gtk.Grid {
@@ -60,6 +58,8 @@ public class Widgets.MainView : Gtk.Grid {
             layer.blending_mode = BlendingMode.OVERLAY;
             yield add_layer (tab.doc, layer);
         }
+
+        tab.ws_view.update_allocation ();
     }
 
     async void add_layer (Document doc, Layer layer) {

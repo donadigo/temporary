@@ -4,12 +4,14 @@ using Core;
 public class TransformTriggerActor : Clutter.Actor {
     public signal void delta (int x, int y);
     public signal void begin_resize ();
+    public signal void end_resize (int x, int y);
+
+    public Gdk.Point start_point { get; private set; }
 
     unowned TransformActor tactor;
 
     string cursor_name;
     bool dragging = false;
-    Gdk.Point start_point;
 
     public TransformTriggerActor (TransformActor tactor, string cursor_name, int width, int height) {
         this.tactor = tactor;
@@ -28,6 +30,20 @@ public class TransformTriggerActor : Clutter.Actor {
 
     public void handle_button_release_event (Clutter.ButtonEvent event) {
         button_release_event (event);
+    }
+
+    public void update_cursor_name (string cursor_name) {
+        if (cursor_name == this.cursor_name) {
+            return;
+        }
+        
+        this.cursor_name = cursor_name;
+        if (dragging) {
+            unowned EventBus event_bus = EventBus.get_default ();
+            event_bus.freeze_cursor_changes (false);
+            event_bus.change_cursor (cursor_name);
+            event_bus.freeze_cursor_changes (true);
+        }
     }
 
     public override bool button_press_event (Clutter.ButtonEvent event) {
@@ -52,6 +68,11 @@ public class TransformTriggerActor : Clutter.Actor {
         }
 
         dragging = false;
+
+        float x, y;
+        Canvas.CanvasUtils.translate_to_stage (tactor.stage, event, out x, out y);
+
+        end_resize ((int)x - start_point.x, (int)y - start_point.y);
         return true;
     }
 

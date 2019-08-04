@@ -49,6 +49,7 @@ public class Widgets.CMainWindow : GlobalWindow {
         header_bar = new CHeaderBar ();
         set_titlebar (header_bar);
         set_default_size (800, 800);
+        //  maximize ();
 
         main_view = new MainView ();
 

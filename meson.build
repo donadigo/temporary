@@ -47,6 +47,7 @@ executable(
     'src/Core/Layers/ImageLayer.vala',
     'src/Core/BlendingShader.vala',
     'src/Core/ImageGraph.vala',
+    'src/Core/Utils.vala',
     'src/Core/Action.vala',
     'src/Core/ToolItem.vala',
     'src/Core/ToolItemGroup.vala',

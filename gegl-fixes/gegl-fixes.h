@@ -1,5 +1,6 @@
 #include <glib.h>
 #include <gegl.h>
+#include <cogl/cogl.h>
 
 GeglRectangle *gegl_fixes_get_bounding_box(GeglNode *node);
 

@@ -9,3 +9,8 @@ namespace Babl {
     [CCode (cname = "gegl_fixes_format")]
     public void* format (string format);
 }
+
+namespace ClutterFixes {
+    [CCode (cheader_filename = "clutter/clutter-types.h", cname = "clutter_matrix_init_from_array")]
+    public static unowned Clutter.Matrix init_from_array ([CCode (array_length = false)] float values[16]);
+}

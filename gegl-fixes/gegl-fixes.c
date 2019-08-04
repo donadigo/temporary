@@ -1,6 +1,7 @@
 #include <glib.h>
 #include <gegl.h>
 #include "gegl-fixes.h"
+#include <cogl/cogl.h>
 
 GeglRectangle* gegl_fixes_get_bounding_box (GeglNode* node)
 {
@@ -13,7 +14,7 @@ GeglRectangle* gegl_fixes_get_bounding_box (GeglNode* node)
 
 void* gegl_fixes_format (const gchar* format)
 {
-    return babl_format(format);
+    return babl_format (format);
 }
 
 void gegl_fixes_set (GeglBuffer* buffer,
@@ -27,5 +28,5 @@ void gegl_fixes_set (GeglBuffer* buffer,
     Babl* bformat;
 
     bformat = babl_format (format);
-    gegl_buffer_set(buffer, rect, mipmap_level, bformat, src, GEGL_AUTO_ROWSTRIDE);
-}                    
+    gegl_buffer_set (buffer, rect, mipmap_level, bformat, src, GEGL_AUTO_ROWSTRIDE);
+}
