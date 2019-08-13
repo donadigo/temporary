@@ -2,6 +2,7 @@
 namespace GeglFixes { 
     public Gegl.Rectangle get_bounding_box (Gegl.Node node);
     public void set (Gegl.Buffer buffer, Gegl.Rectangle rect, int mipmap_level, string format_name, void* src, int rowstride);
+    public void get (Gegl.Buffer buffer, Gegl.Rectangle rect, double scale, string format_name, void* src, int rowstride, Gegl.AbyssPolicy abyss_policy);
 }
 
 [CCode (cheader_filename = "gegl-fixes/gegl-fixes.h")]

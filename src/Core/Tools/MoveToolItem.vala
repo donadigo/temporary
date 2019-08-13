@@ -89,6 +89,7 @@ public class Core.MoveToolItem : ToolItem {
         }
 
         cv.doc.layer_stack.update_dirty ();
+        cv.doc.process_graph ();
         dragging = false;
     }
 
@@ -109,12 +110,10 @@ public class Core.MoveToolItem : ToolItem {
                 float delta_y = ey - drag_y;
 
                 var start_box = start_boxes[layer];
-                layer.bounding_box = new Gegl.Rectangle (
+                layer.update_bounding_box (new Gegl.Rectangle (
                     start_box.x + (int)delta_x, start_box.y + (int)delta_y,
                     layer.bounding_box.width, layer.bounding_box.height
-                );
-
-                layer.bounding_box_updated ();
+                ));
             }
         }        
     }
@@ -130,22 +129,20 @@ public class Core.MoveToolItem : ToolItem {
 
             switch (event.keyval) {
                 case Clutter.Key.Left:
-                    layer.bounding_box.x -= 1;
-                    layer.bounding_box_updated ();
+                    layer.move_bounding_box (-1, 0);
                     break;
                 case Clutter.Key.Right:
-                    layer.bounding_box.x += 1;
-                    layer.bounding_box_updated ();
+                    layer.move_bounding_box (1, 0);
                     break;
                 case Clutter.Key.Down:
-                    layer.bounding_box.y += 1;
-                    layer.bounding_box_updated ();
+                    layer.move_bounding_box (0, 1);
                     break;
                 case Clutter.Key.Up:
-                    layer.bounding_box.y -= 1;
-                    layer.bounding_box_updated ();
+                    layer.move_bounding_box (0, -1);
                     break;
             }
         }
+
+        cv.doc.process_graph ();
     }
 }

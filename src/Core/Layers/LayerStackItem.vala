@@ -14,5 +14,4 @@ public class Core.LayerGroup : Object, LayerStackItem {
     public BlendingMode blending_mode { get; set; }
 
     public Gee.LinkedList<Layer> layers { get; construct; }
-
 }

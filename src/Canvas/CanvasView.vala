@@ -115,7 +115,10 @@ public class Widgets.CanvasView : Clutter.Actor {
                         cached = true;
                     }
 
-                    children.nth_data (i).paint ();
+                    unowned Clutter.Actor layer_actor = children.nth_data (i);
+                    if (layer_actor.visible) {
+                        layer_actor.paint ();
+                    }
                 }
             } else {
                 print ("Painting from cache.\n");

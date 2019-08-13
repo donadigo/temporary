@@ -7,15 +7,13 @@ public abstract class Core.Layer : Object, LayerStackItem {
     public float opacity { get; set; default = 1.0f; }
     public BlendingMode blending_mode { get; set; default = BlendingMode.NORMAL; }
 
-    public Gegl.Rectangle bounding_box { get; set; }
+    public Gegl.Rectangle bounding_box { get; protected set; }
     public signal void repaint ();
     public signal void bounding_box_updated ();
     public signal void ready ();
 
     // Dirty = is in the actor mode
     public bool dirty { get; set; default = false; }
-
-    public Gegl.Node node { get; protected set; }
 
     static Cogl.Material screen_material;
     int freeze_count = 0;
@@ -25,6 +23,17 @@ public abstract class Core.Layer : Object, LayerStackItem {
         screen_material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         screen_material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         CoglFixes.set_user_program (screen_material, BlendingShader.get_default ().program);
+    }
+
+    public virtual void update_bounding_box (Gegl.Rectangle new_bb) {
+        bounding_box = new_bb;
+        bounding_box_updated ();
+    }
+
+    public virtual void move_bounding_box (int xoff, int yoff) {
+        bounding_box.x += xoff;
+        bounding_box.y += yoff;
+        bounding_box_updated ();
     }
 
     public virtual void paint_content (Document document, LayerActor actor) {
@@ -42,7 +51,7 @@ public abstract class Core.Layer : Object, LayerStackItem {
         Cogl.rectangle (0, 0, current.get_width (), current.get_height ());
     }
 
-    public abstract Gegl.Node process (Gegl.Node graph, Gegl.Node source);
+    public abstract Gegl.Node connect_to_graph (Gegl.Node graph, Gegl.Node source);
     public abstract async Gdk.Pixbuf? create_pixbuf (int width);
 
     public void update () {

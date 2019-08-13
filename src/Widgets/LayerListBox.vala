@@ -90,7 +90,7 @@ public class Widgets.LayerListBox : Gtk.ListBox {
                 return true;
             } else if (GlobalKeyState.any_pressed ({ Gdk.Key.Control_L, Gdk.Key.Control_R })) {
                 selection_mode = Gtk.SelectionMode.MULTIPLE;
-                select_row_post (row_widget, true);
+                select_row_post (row_widget);
                 focus_canvas ();
                 return true;
             } else {
@@ -105,30 +105,31 @@ public class Widgets.LayerListBox : Gtk.ListBox {
         return false;
     }
 
-    void select_row_post (Gtk.Widget row, bool add_existing = false) {
+    void select_row_post (Gtk.Widget row) {
         var layer_row = (LayerRow)row;
         row.activate ();
         
-        var items = new LayerList ();
-        items.add (layer_row.layer);
-
-        if (add_existing) {
-            doc.layer_stack.add_to_selection (items);
-        } else {
-            doc.layer_stack.set_selection (items);
-        }
+        update_stack_selection ();
     }
 
     void select_rows_post (int start, int end) {
-        var items = new LayerList ();
         for (int i = start; i <= end; i++) {
             var row = get_row_at_index (i);
-            var layer_row = (LayerRow)row;
-            items.add (layer_row.layer);
             select_row (row);
         }
 
-        doc.layer_stack.add_to_selection (items);
+        update_stack_selection ();
+    }
+
+    void update_stack_selection () {
+        var items = new LayerList ();
+        foreach (unowned Gtk.ListBoxRow row in get_selected_rows ()) {
+            if (row is LayerRow) {
+                items.add (((LayerRow)row).layer);
+            }
+        }
+
+        doc.layer_stack.set_selection (items);
     }
 
     void update_zebra () {

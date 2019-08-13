@@ -25,6 +25,7 @@ public class Core.Document : Object {
         id = current_id++;
 
         layer_stack = new LayerStack ();
+        layer_stack.added.connect (on_layer_stack_added);
         graph = new ImageGraph (this);
         image = new Image ();
 
@@ -41,37 +42,29 @@ public class Core.Document : Object {
     }
 
     public void process_graph () {
-        AsyncJob.queue.begin (JobType.PROCESS_GRAPH, QueueFlags.CANCEL_ALL, (job) => {
-            var graph = new Gegl.Node ();
-            var current = graph;
-            foreach (unowned Layer layer in layer_stack.get_unrolled ()) {
-                current = layer.process (graph, current);
+        var roi = new Gegl.Rectangle (0, 0, width, height);
+        graph.process.begin (roi, (obj, res) => {
+            var node = graph.process.end (res);
+            if (node != null) {
+                Idle.add (() => {
+                    image.allocate (width, height, 4);
+
+                    node.blit (1, roi, Formats.RGBA_u8, image.data, Gegl.AUTO_ROWSTRIDE, Gegl.BlitFlags.DEFAULT);
+                    display_mode = DisplayMode.GRAPH;
+                    repaint ();
+                    return false;    
+                });
+
+                //  var save = node.create_child ("gegl:save");
+                //  node.connect_to ("output", save, "input");
+                //  save.set_property ("path", "/home/donadigo/test.png");
+                //  save.process ();
             }
-
-            var roi = new Gegl.Rectangle (0, 0, width, height);
-
-            //  var save = graph.create_child ("gegl:save");
-            //  save.set_property ("path", "/home/donadigo/test.png");
-            //  current.connect_to ("output", save, "input");
-
-            var processor = current.new_processor (roi);
-
-            double progress = 0.0;
-            while (!job.cancelled && processor.work (out progress));
-            if (job.cancelled) {
-                return null;
-            }
-
-            image.allocate (width, height, 4);
-            current.blit (1, roi, Formats.RGBA_u8, image.data, Gegl.AUTO_ROWSTRIDE, Gegl.BlitFlags.DEFAULT);
-            Idle.add (() => {
-                //  display_mode = DisplayMode.GRAPH;
-                repaint ();
-                return false;
-            });
-
-            return null;
         });
+    }
+
+    void on_layer_stack_added (Layer layer) {
+        graph.add_layer (layer);
     }
 
     void on_canvas_event (Widgets.CanvasView cv, Clutter.Event event) {

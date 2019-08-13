@@ -214,7 +214,7 @@ namespace Gegl {
 		public string[] list_input_pads ();
 		[CCode (array_length = false, array_null_terminated = true)]
 		public string[] list_output_pads ();
-		public Gegl.Processor new_processor (Gegl.Rectangle rectangle);
+		public Gegl.Processor new_processor (Gegl.Rectangle? rectangle);
 		public void process ();
 		public unowned Gegl.Node remove_child (Gegl.Node child);
 		public void set_passthrough (bool passthrough);

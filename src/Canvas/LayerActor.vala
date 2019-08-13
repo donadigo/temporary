@@ -13,6 +13,9 @@ public class LayerActor : Clutter.Actor {
         reactive = true;
         layer.bounding_box_updated.connect (update_bounding_box);
         layer.notify["opacity"].connect (update_opacity);
+        layer.notify["visible"].connect (() => visible = layer.visible);
+        visible = layer.visible;
+        
         update_bounding_box ();
         update_opacity ();
 

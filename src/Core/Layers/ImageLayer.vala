@@ -9,10 +9,14 @@ public class Core.ImageLayer : Layer {
     Cogl.PixelFormat format;
 
     Gegl.Node load;
+    Gegl.Node? nbsource;
+    Gegl.Node? ntranslate;
+    Gegl.Node? nover;
+    Gegl.Node? nopacity;
+
 
     public ImageLayer (Document doc, File? file) {
         Object (doc: doc, file: file);
-        node = doc.graph.master.create_child ("gegl:layer");
     }
 
     construct {
@@ -69,7 +73,7 @@ public class Core.ImageLayer : Layer {
         var roi = GeglFixes.get_bounding_box (load);
         int stride = roi.width * 4;
 
-        yield AsyncJob.queue (JobType.LOAD_FILE, QueueFlags.NONE, (job) => {
+        yield AsyncJob.queue (JobType.LOAD_FILE, null, QueueFlags.NONE, (job) => {
             image.allocate (roi.width, roi.height, 4);
             load.blit (1, roi, Formats.RGBA_u8, image.data, stride, Gegl.BlitFlags.DEFAULT);
 
@@ -79,30 +83,50 @@ public class Core.ImageLayer : Layer {
         });
     }
 
-    public override Gegl.Node process (Gegl.Node graph, Gegl.Node source) {
+    public override Gegl.Node connect_to_graph (Gegl.Node graph, Gegl.Node source) {
         var roi = new Gegl.Rectangle (0, 0, bounding_box.width, bounding_box.height);
         var buffer = new Gegl.Buffer (roi, Formats.RGBA_u8);
         buffer.set (roi, 0, Formats.RGBA_u8, image.data, roi.width * 4);
 
-        var bsource = graph.create_child ("gegl:buffer-source");
-        bsource.set_property ("buffer", buffer);
+        nbsource = graph.create_child ("gegl:buffer-source");
+        nbsource.set_property ("buffer", buffer);
 
-        var translate = graph.create_child ("gegl:translate");
-        translate.set_property ("x", bounding_box.x);
-        translate.set_property ("y", bounding_box.y);
+        ntranslate = graph.create_child ("gegl:translate");
+        ntranslate.set_property ("x", bounding_box.x);
+        ntranslate.set_property ("y", bounding_box.y);
 
-        bsource.connect_to ("output", translate, "input");
+        nbsource.connect_to ("output", ntranslate, "input");
 
         string op = BlendingMode.to_gegl_op (blending_mode);
-        var over = node.get_parent ().create_child (op);
+        nover = graph.create_child (op);
         if (op == "gegl:color-burn") {
-            over.set_property ("srgb", true);
+            nover.set_property ("srgb", true);
         }
 
-        source.connect_to ("output", over, "input");
-        translate.connect_to ("output", over, "aux");
+        //  nopacity = graph.create_child ("gegl:opacity");
+        ntranslate.connect_to ("output", nover, "aux");
 
-        return over;
+        source.connect_to ("output", nover, "input");
+        ntranslate.connect_to ("output", nover, "aux");
+
+        return nover;
+    }
+
+    public override void update_bounding_box (Gegl.Rectangle new_bb) {
+        base.update_bounding_box (new_bb);
+        update_translate_node ();
+    }
+
+    public override void move_bounding_box (int xoff, int yoff) {
+        base.move_bounding_box (xoff, yoff);
+        update_translate_node ();
+    }
+
+    void update_translate_node () {
+        if (ntranslate != null) {
+            ntranslate.set_property ("x", bounding_box.x);
+            ntranslate.set_property ("y", bounding_box.y);
+        }
     }
 
     public bool bounding_box_matches_image () {
@@ -125,10 +149,10 @@ public class Core.ImageLayer : Layer {
         }
 
         float thumb_ratio = doc.width / width;
-        int scaled_width = (int)(bounding_box.width / thumb_ratio);
-        int scaled_height = (int)(bounding_box.height / thumb_ratio);
+        int scaled_width = int.max (1, (int)(bounding_box.width / thumb_ratio));
+        int scaled_height = int.max (1, (int)(bounding_box.height / thumb_ratio));
 
-        yield AsyncJob.queue (JobType.COMPOSITE_PIXBUF, QueueFlags.NONE, (job) => {
+        yield AsyncJob.queue (JobType.COMPOSITE_PIXBUF, null, QueueFlags.NONE, (job) => {
             var content = new Gdk.Pixbuf.from_data (image.data, Gdk.Colorspace.RGB, true, 8, bounding_box.width, bounding_box.height, bounding_box.width * 4);
             content = content.scale_simple (scaled_width, scaled_height, Gdk.InterpType.BILINEAR);
 

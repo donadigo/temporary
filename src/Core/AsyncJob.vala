@@ -13,7 +13,8 @@ public enum Core.JobType {
 public class Core.AsyncJob : Object {
     public class Job {
         public unowned AsyncJob.JobCallback callback;
-        public int type;
+        public uint16 type;
+        public void* group_id;
         public int id;
         public bool cancelled;
 
@@ -37,8 +38,8 @@ public class Core.AsyncJob : Object {
         return instance;
     }
 
-    public static async void queue (int type, QueueFlags flags, JobCallback cb) {
-        yield AsyncJob.get_default ()._queue_async (type, flags, cb);
+    public static async void queue (uint16 type, void* group_id, QueueFlags flags, JobCallback cb) {
+        yield AsyncJob.get_default ()._queue_async (type, group_id, flags, cb);
     }
 
     construct {
@@ -53,34 +54,41 @@ public class Core.AsyncJob : Object {
 
     private void* worker_func () {
         while (running) {
-            if (jobs.size == 0) {
-                Thread.@yield ();
-                continue;
-            }
+            lock (jobs) {
+                if (jobs.size == 0) {
+                    Thread.@yield ();
+                    continue;
+                }
 
-            var job = jobs.poll_head ();
-            job.callback (job);
-            job.finished ();
+                var job = jobs.poll_head ();
+                job.callback (job);
+                job.finished ();
+            }
         }
 
         return null;
     }
 
-    internal Job _queue (int type, QueueFlags flags, JobCallback cb) {
+    internal Job _queue (uint16 type, void* group_id, QueueFlags flags, JobCallback cb) {
         if (QueueFlags.CANCEL_ALL in flags) {
-            cancel_all (type);
+            cancel_all (type, group_id);
         }
 
         var job = new Job ();
         job.callback = cb;
         job.type = type;
+        job.group_id = group_id;
         job.id = current_id++;
-        jobs.add (job);
+
+        lock (jobs) {
+            jobs.add (job);
+        }
+
         return job;
     }
 
-    internal async void _queue_async (int type, QueueFlags flags, JobCallback cb) {
-        var job = _queue (type, flags, cb);
+    internal async void _queue_async (uint16 type, void* group_id, QueueFlags flags, JobCallback cb) {
+        var job = _queue (type, group_id, flags, cb);
         job.finished.connect (() => {
             Idle.add (_queue_async.callback);
         });
@@ -88,9 +96,9 @@ public class Core.AsyncJob : Object {
         yield;
     }
 
-    private void cancel_all (int type) {
+    private void cancel_all (uint16 type, void* group_id) {
         foreach (var job in jobs) {
-            if (job.type == type) {
+            if (job.type == type && (group_id == null || job.group_id == group_id)) {
                 job.cancelled = true;
             }
         }

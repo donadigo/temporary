@@ -137,7 +137,7 @@ public class Widgets.LayerRow : Gtk.ListBoxRow {
     }
 
     async void update_icon () {
-        const int WIDTH = 50;
+        const int WIDTH = 30;
 
         var pixbuf = yield layer.create_pixbuf (WIDTH);
         if (pixbuf != null) {

@@ -59,6 +59,8 @@ public class Widgets.MainView : Gtk.Grid {
             yield add_layer (tab.doc, layer);
         }
 
+        Utils.print_node (get_current_tab ().ws_view.doc.graph.master);
+        get_current_tab ().ws_view.doc.process_graph ();
         tab.ws_view.update_allocation ();
     }
 
