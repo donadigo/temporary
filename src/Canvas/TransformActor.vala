@@ -329,11 +329,13 @@ public class TransformActor : Clutter.Actor {
 
     void set_width_delta (float delta) {
         float width_factor = (current_bounding_box.width + delta) / (float)layer_actor.layer.bounding_box.width;
+        // TODO: scale_x can change, this should too
         transform_matrix.xx = (float)layer_actor.scale_x * width_factor;
     }
 
     void set_height_delta (float delta) {
         float height_factor = (current_bounding_box.height + delta) / (float)layer_actor.layer.bounding_box.height;
+        // TODO: scale_x can change, this should too
         transform_matrix.yy = (float)layer_actor.scale_y * height_factor;
     }
 

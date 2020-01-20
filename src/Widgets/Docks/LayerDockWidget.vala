@@ -37,6 +37,16 @@ public class Widgets.LayerDockWidget : CDockWidget {
         blend_label.halign = Gtk.Align.START;
 
         var op_label = new MouseAdjustableLabel (_("Opacity:"), 3);
+        op_label.button_press_event.connect (() => {
+            enter_actor_mode ();
+            return false;
+        });
+
+        op_label.button_release_event.connect (() => {
+            process_graph ();
+            return false;
+        });
+
         op_label.step.connect (on_op_label_step);
         op_label.halign = Gtk.Align.START;
 
@@ -115,6 +125,7 @@ public class Widgets.LayerDockWidget : CDockWidget {
 
     bool on_op_scale_button_press_event (Gdk.EventButton event) {
         if (event.button == Gdk.BUTTON_PRIMARY) {
+            enter_actor_mode ();
             mark_selected (true);         
         }
 
@@ -124,12 +135,14 @@ public class Widgets.LayerDockWidget : CDockWidget {
     bool on_op_scale_button_release_event (Gdk.EventButton event) {
         if (event.button == Gdk.BUTTON_PRIMARY) {
             mark_selected (false);
+            process_graph ();
         }
 
         return false;
     }
 
     void on_blend_combo_changed () {
+        enter_actor_mode ();
         string? active_id = blend_combo.get_active_id ();
         if (active_id == null) {
             return;
@@ -144,6 +157,7 @@ public class Widgets.LayerDockWidget : CDockWidget {
 
         mark_selected (false);
         EventBus.get_default ().force_redraw_canvas (current_doc);
+        process_graph ();
     }
 
     void mark_selected (bool dirty) {
@@ -171,5 +185,15 @@ public class Widgets.LayerDockWidget : CDockWidget {
         // From https://codereview.stackexchange.com/a/57945 and
         // https://web.archive.org/web/20170210025920/http://javascript.about.com/od/problemsolving/a/modulobug.htm
         blend_combo.active = (new_active % n + n) % n;
+    }
+
+    inline void enter_actor_mode () {
+        if (current_doc == null) return;
+        current_doc.enter_actor_mode ();
+    }
+
+    inline void process_graph () {
+        if (current_doc == null) return;
+        current_doc.process_graph ();
     }
 }

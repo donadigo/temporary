@@ -1,6 +1,8 @@
 public abstract class Core.Service : Object {
     private static Gee.HashMap<Type, Service> services;
 
+    public bool activated { get; set; default = false; }
+
     public static void init () {
         services = new Gee.HashMap<Type, Service> ();
 
@@ -15,6 +17,12 @@ public abstract class Core.Service : Object {
         return services[type];
     }
 
-    public abstract bool activate (Widgets.CanvasView canvas_view, Gee.HashMap<string, Variant>? options);
-    public abstract void deactivate ();
+    public virtual bool activate (Widgets.CanvasView canvas_view, Gee.HashMap<string, Variant>? options) {
+        activated = true;
+        return true;
+    }
+
+    public virtual void deactivate () {
+        activated = false;
+    }
 }

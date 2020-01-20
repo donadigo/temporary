@@ -20,5 +20,5 @@ public class Core.EventBus : Object {
     public signal void current_document_changed (Core.Document? doc);
     public signal void select_layers (Gee.LinkedList<unowned Core.LayerStackItem> items);
 
-    public signal void set_tool_settings_widget (Gtk.Widget widget);
+    public signal void set_tool_settings_widget (Document? doc, Gtk.Widget? widget);
 }

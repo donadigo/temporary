@@ -6,7 +6,7 @@ public enum Core.DisplayMode {
 public class Core.Document : Object {
     public string? filename { get; set; }
     public LayerStack layer_stack { get; construct; }
-    public ImageGraph graph { get; construct; }
+    public DocumentGraph graph { get; construct; }
     public int width { get; construct set; }
     public int height { get; construct set; }
     public DisplayMode display_mode { get; set; default = DisplayMode.ACTOR; }
@@ -21,12 +21,14 @@ public class Core.Document : Object {
 
     static uint64 current_id = 0U;
 
+    uint mode_freeze_count = 0;
+
     construct {
         id = current_id++;
 
         layer_stack = new LayerStack ();
         layer_stack.added.connect (on_layer_stack_added);
-        graph = new ImageGraph (this);
+        graph = new DocumentGraph (this);
         image = new Image ();
 
         EventBus.get_default ().canvas_event.connect (on_canvas_event);
@@ -36,9 +38,21 @@ public class Core.Document : Object {
         Object (width: width, height: height);
     }
 
-    public void enter_actor_mode () {
-        display_mode = DisplayMode.ACTOR;
+    public void freeze_mode_changes (DisplayMode mode) {
+        display_mode = mode;
+        mode_freeze_count++;
         repaint ();
+    }
+
+    public void thaw_mode_changes () {
+        mode_freeze_count--;
+    }
+
+    public void enter_actor_mode () {
+        if (mode_freeze_count == 0U) {
+            display_mode = DisplayMode.ACTOR;
+            repaint ();
+        }
     }
 
     public void process_graph () {
@@ -50,8 +64,11 @@ public class Core.Document : Object {
                     image.allocate (width, height, 4);
 
                     node.blit (1, roi, Formats.RGBA_u8, image.data, Gegl.AUTO_ROWSTRIDE, Gegl.BlitFlags.DEFAULT);
-                    display_mode = DisplayMode.GRAPH;
-                    repaint ();
+                    if (mode_freeze_count == 0U) {
+                        display_mode = DisplayMode.GRAPH;
+                        repaint ();
+                    }
+                    
                     return false;    
                 });
 

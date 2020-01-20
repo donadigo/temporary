@@ -43,10 +43,16 @@ public enum Core.BlendingMode {
 
     public static string to_gegl_op (BlendingMode mode) {
         switch (mode) {
+            case MULTIPLY:
+                return "gegl:multiply";
+            case SCREEN:
+                return "gegl:screen";
             case LINEAR_BURN:
                 return "gegl:color-burn";
             case OVERLAY:
                 return "gegl:overlay";
+            case SOFT_LIGHT:
+                return "gegl:soft-light";
             default:
                 return "gegl:over";
         }
@@ -94,6 +100,22 @@ public class Core.BlendingShader : Object {
             }
         }
 
+        float soft_light_gegl (float cA, float cB, float aA, float aB) {
+            float aD = aA + aB - aA * aB;
+
+            if (2 * cA < aA) {
+                return (cB * (aA - (aB == 0 ? 1 : 1 - cB / aB) * (2 * cA - aA)) + cA * (1 - aB) + cB * (1 - aA), 0, aD);
+            } else if (8 * cB <= aB) {
+                return clamp (cB * (aA - (aB == 0 ? 1 : 1 - cB / aB) * (2 * cA - aA) * (aB == 0 ? 3 : 3 - 8 * cB / aB)) + cA * (1 - aB) + cB * (1 - aA), 0, aD);
+            } else {
+                return clamp ((aA * cB + (aB == 0 ? 0 : sqrt (cB / aB) * aB - cB) * (2 * cA - aA)) + cA * (1 - aB) + cB * (1 - aA), 0, aD);
+            }
+        }
+
+        float screen_gegl (float cA, float cB, float aA, float aB) {
+            float aD = aA + aB - aA * aB;
+            return clamp (cA + cB - cA * cB, 0, aD);
+        }
 
         void main () {
             vec4 t0 = texture2D(tex0, cogl_tex_coord0_in.xy);
@@ -103,11 +125,23 @@ public class Core.BlendingShader : Object {
             if (type == 1) {
                 c = t0 * t1;
             } else if (type == 2) {
-                c = 1 - (1 - t0) * (1 - t1);
+                float aD = t1.a + t0.a - t1.a * t0.a;
+                float r = screen_gegl(t1.r, t0.r, t1.a, t0.a);
+                float g = screen_gegl(t1.g, t0.g, t1.a, t0.a);
+                float b = screen_gegl(t1.b, t0.b, t1.a, t0.a);
+                c = vec4(r, g, b, aD);
+                //  c = vec4(r, g, b, aD);
+                //  c = 1 - (1 - t0) * (1 - t1);
             } else if (type == 3) {
                 c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
             } else if (type == 4) {
-                c = vec4 (soft_light (t0.rgb, t1.rgb), 1.0);
+                //  c = vec4 (soft_light (t0.rgb, t1.rgb), 1.0);
+                float aD = t1.a + t0.a - t1.a * t0.a;
+
+                float r = soft_light_gegl(t1.r, t0.r, t1.a, t0.a);
+                float g = soft_light_gegl(t1.g, t0.g, t1.a, t0.a);
+                float b = soft_light_gegl(t1.b, t0.b, t1.a, t0.a);
+                c = vec4(r, g, b, aD);
             } else if (type == 5) {
                 c = (1 - 2 * t1) * t0 * t0 + 2 * t1 * t0;
             } else if (type == 6) {

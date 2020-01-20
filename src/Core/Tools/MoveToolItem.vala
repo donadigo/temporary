@@ -2,6 +2,8 @@
 
 
 public class Core.MoveToolItem : ToolItem {
+    const uint PROCESS_GRAPH_TIMEOUT = 500;
+
     public override string name {
         get {
             return _("Move");
@@ -18,6 +20,7 @@ public class Core.MoveToolItem : ToolItem {
     bool dragging = false;
     float drag_x = 0;
     float drag_y = 0;
+    uint process_graph_id = 0U;
 
     Gee.HashMap<Layer, Gegl.Rectangle> start_boxes;
 
@@ -143,6 +146,15 @@ public class Core.MoveToolItem : ToolItem {
             }
         }
 
-        cv.doc.process_graph ();
+        if (process_graph_id > 0U) {
+            Source.remove (process_graph_id);
+            process_graph_id = 0U;
+        }
+
+        process_graph_id = Timeout.add (PROCESS_GRAPH_TIMEOUT, () => {
+            process_graph_id = 0U;
+            cv.doc.process_graph ();
+            return false;
+        });
     }
 }

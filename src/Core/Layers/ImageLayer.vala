@@ -32,6 +32,8 @@ public class Core.ImageLayer : Layer {
             ready ();
         }
 
+        notify["blending-mode"].connect (update_blending_node);
+        notify["opacity"].connect (update_opacity_node);
         material = new Cogl.Material ();
         material.set_layer_filters (0, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
         material.set_layer_filters (1, Cogl.MaterialFilter.NEAREST, Cogl.MaterialFilter.NEAREST);
@@ -71,16 +73,17 @@ public class Core.ImageLayer : Layer {
         load.set_property ("path", file.get_path ());
 
         var roi = GeglFixes.get_bounding_box (load);
-        int stride = roi.width * 4;
 
-        yield AsyncJob.queue (JobType.LOAD_FILE, null, QueueFlags.NONE, (job) => {
+        var agraph = new AsyncGraph (load);
+        var output = yield agraph.process (null);
+        if (output != null) {
+            int stride = roi.width * 4;
             image.allocate (roi.width, roi.height, 4);
-            load.blit (1, roi, Formats.RGBA_u8, image.data, stride, Gegl.BlitFlags.DEFAULT);
+            output.blit (1, roi, Formats.RGBA_u8, image.data, stride, Gegl.BlitFlags.DEFAULT);
 
             format = Cogl.PixelFormat.RGBA_8888;
             bounding_box = new Gegl.Rectangle (0, 0, roi.width, roi.height);
-            return null;
-        });
+        }
     }
 
     public override Gegl.Node connect_to_graph (Gegl.Node graph, Gegl.Node source) {
@@ -99,15 +102,18 @@ public class Core.ImageLayer : Layer {
 
         string op = BlendingMode.to_gegl_op (blending_mode);
         nover = graph.create_child (op);
-        if (op == "gegl:color-burn") {
+        if (op == "gegl:color-burn" || op == "gegl:soft-light" || op == "gegl:screen") {
             nover.set_property ("srgb", true);
         }
 
-        //  nopacity = graph.create_child ("gegl:opacity");
-        ntranslate.connect_to ("output", nover, "aux");
+        nopacity = graph.create_child ("gegl:opacity");
+        nopacity.set_property ("value", (double)opacity);
+        ntranslate.connect_to ("output", nopacity, "input");
+
+        nopacity.connect_to ("output", nover, "aux");
 
         source.connect_to ("output", nover, "input");
-        ntranslate.connect_to ("output", nover, "aux");
+        nopacity.connect_to ("output", nover, "aux");
 
         return nover;
     }
@@ -126,6 +132,21 @@ public class Core.ImageLayer : Layer {
         if (ntranslate != null) {
             ntranslate.set_property ("x", bounding_box.x);
             ntranslate.set_property ("y", bounding_box.y);
+        }
+    }
+
+    void update_opacity_node () {
+        if (nopacity != null) {
+            nopacity.set_property ("value", (double)opacity);
+        }
+    }
+
+    void update_blending_node () {
+        if (nover != null) {
+            nover.operation = BlendingMode.to_gegl_op (blending_mode);
+            if (nover.operation == "gegl:color-burn" || nover.operation == "gegl:soft-light" || nover.operation == "gegl:screen") {
+                nover.set_property ("srgb", true);
+            }
         }
     }
 

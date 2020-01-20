@@ -9,6 +9,8 @@ public class Core.LayerTransformService : Service {
     }
 
     public override bool activate (Widgets.CanvasView canvas_view, Gee.HashMap<string, Variant>? options) {
+        base.activate (canvas_view, options);
+
         unowned Clutter.Stage? stage = canvas_view.get_stage ();
         if (stage == null) {
             return false;
@@ -24,10 +26,16 @@ public class Core.LayerTransformService : Service {
             stage.add_child (tactor);
         }
 
+        canvas_view.doc.freeze_mode_changes (ACTOR);
+        var settings_widget = new Widgets.TransformSettingsWidget ();
+        EventBus.get_default ().set_tool_settings_widget (null, settings_widget);
+
         return true;
     }
 
     public override void deactivate () {
+        base.deactivate ();
+        
         foreach (var tactor in actors) {
             tactor.layer_actor.layer.dirty = false;
             tactor.destroy ();

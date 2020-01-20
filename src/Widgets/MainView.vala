@@ -34,6 +34,8 @@ public class Widgets.MainView : Gtk.Grid {
 
         attach (tool_settings_bar, 0, 0, 1, 1);
         attach (paned, 0, 1, 1, 1);
+
+        EventBus.get_default ().set_tool_settings_widget.connect (on_set_tool_settings_widget);
     }
 
     public unowned WorkspaceTab? get_current_tab () {
@@ -55,7 +57,7 @@ public class Widgets.MainView : Gtk.Grid {
 
         for (int i = 0; i < 50; i++) {
             layer = new ImageLayer (tab.doc, File.new_for_path ("/home/donadigo/rect.png"));
-            layer.blending_mode = BlendingMode.OVERLAY;
+            layer.blending_mode = BlendingMode.SCREEN;
             yield add_layer (tab.doc, layer);
         }
 
@@ -71,5 +73,14 @@ public class Widgets.MainView : Gtk.Grid {
         });
 
         yield;
+    }
+
+
+    void on_set_tool_settings_widget (Document? _doc, Gtk.Widget? widget) {
+        if (_doc != null && _doc != get_current_tab ().doc) {
+            return;
+        }
+
+        tool_settings_bar.set_widget (widget);
     }
 }
